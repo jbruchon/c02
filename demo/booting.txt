@@ -1,0 +1,25 @@
+BOOTING THE DEMO KERNEL
+-----------------------
+
+Note that this document is C64-centric, but the general guidelines still
+apply to other systems.
+
+As primitive as it is now, with no device drivers or filesystem, the kernel
+cannot load programs itself.  You must load the programs you wish to use
+into the appropriate init task memory locations specified in the source you
+have built.  A file called "qstart" is provided with the kernel that will
+disable interrupts, remove ROMs from Commodore 64 memory, and start the
+kernel at $ff00.  Also, "boot.prg" contains loaders for the scheduler,
+task1, task2, and writes "qstart" at 8192.  SYS 8192 will start the demo.
+
+The kernel's default task locations are $1000 and $7000.  Load any old
+assembly program into these before you jump-start the kernel.  Included
+are programs "task1" and "task2" that write "A" and "B" to the screen,
+respectively, using $0300-$0301 as the "cursor location" and performing
+a bounds check at $07e7 (the default end of video memory on the C64).
+
+If you want this thing to work better for you, write your own programs to
+run under it! :)
+
+Happy multitasking,
+Jody
