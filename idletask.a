@@ -1,0 +1,12 @@
+; Idle task for Jody Bruchon's kernel
+
+; This process does nothing but make sure the kernel has a process to
+; execute.  If every process sleeps, this special process will awaken
+; and idle the CPU.  This stays at $fff5 because it will never move and
+; will never be killed.  If the PC is $fffa when the kernel IRQ handler
+; starts, it needs to detect that and jump over context save code.
+
+.org fff9
+
+idletask
+        brk

@@ -1,0 +1,194 @@
+; Pre-emptive multitasking "kernel" for 65xx / Commodore 64
+;
+; "Copyright (C) 2004 by Jody Bruchon" --nope! :)
+;
+; This file is in the public domain!  The PD has been beaten
+; to death by copyright law and greedy corporate interests in
+; bed with lawmakers, and anything that I can do to enrich the
+; public domain, I will.  Please consider releasing any derived
+; works from this software under the public domain so that
+; others may benefit!
+;
+; Heavy commenting all around so that anyone can read this and
+; see what it is doing at all steps.  I hate weakly commented code.
+; THIS CODE WAS WRITTEN AND TESTED ON THE A6 CROSS-PLATFORM NMOS 6502
+; ASSEMBLER.
+;
+; This minikernel must be loaded by a quick assembly routine
+; that writes $20 to $0001 to wipe the 64's ROMS off the
+; memory map and then performs a JMP to the .org below.
+; This kernel is intended to provide a round-robin pre-empting
+; scheduler core that you can wrap two applications within.
+; Modification for more than two applications should be trivial.
+; Disk I/O and similar KERNAL tasks are your responsibility. :)
+; See the "boot-mk" asm source for a simple kernel jump-starter.
+
+
+; Start address where each task begins execution.
+t1addr  =$1000                  ; Task 1 start address
+tskcnt  =$01                    ; Number of tasks running
+
+; Kernel variable ZP locations
+task    =$02                    ; Kernel task counter
+temp    =$03                    ; Temporary workspace
+tasks   =$04                    ; Number of tasks running
+
+; Initial SP for tasks
+t1spi   =$ff                    ; Task 1 init SP
+
+; The following are zero-page addresses used to store
+; context-switching information for a process.
+; Each context uses 7 bytes of zero page memory.
+; Only Task 1 variables are used.  Higher task numbers
+; find their corresponding values from an index generated
+; from the task number such that for task N:
+; t1var + (7 * (task - 1)) = tNvar
+t1pc    =$05                    ; Task 1 PC (2 bytes)
+;       =$06
+t1a     =$07                    ; Task 1 A
+t1x     =$08                    ; Task 1 X
+t1y     =$09                    ; Task 1 Y
+t1p     =$0a                    ; Task 1 status
+t1sp    =$0b                    ; Task 1 SP
+
+; It is recommended that you load as high as possible in order to
+; maximize free memory for tasks.  This should have been obvious.
+; The "init" section can be totally wiped out by a program.
+
+        .org $ff00
+
+; init is where the kernel's tasks are set up.  It sets up two tasks
+; for demonstrations, but for a real system this will only need to
+; clean house before kernel entry and the program that loads the kernel
+; will be responsible for setting PC/SP up for the "init program" it
+; loads...blah, that was a mouthful. :)
+
+init
+        sei                     ; Mask off IRQs so we aren't interrupted
+        lda #$05                ; C64: Make SURE 6510 keeps I/O banked in
+        sta $01                 ; C64: LORAM+CHAREN=I/O.  CHAREN only=RAM
+        lda #<irq               ; Set NMI vector to irq
+        sta $fffa               ; nmivec = $fffa-b
+        lda #>irq
+        sta $fffb
+        lda #<init              ; Set RESET vector to init
+        sta $fffc               ; resvec = $fffc-d
+        lda #>init
+        sta $fffd
+        lda #<irq               ; Set IRQ vector to irq (surprise...)
+        sta $fffe               ; irqvec = $fffe-f
+        lda #>irq
+        sta $ffff
+        ldx #t1spi              ; Task SP inits
+        txs
+        lda #<t1addr            ; Task PC inits
+        sta t1pc
+        lda #>t1addr
+        sta t1pc+1
+        lda #$01                ; Set up task counter to start at task 1
+        sta task
+        lda #tskcnt+1           ; Get the maximum tasks to start running
+        sta tasks               ; ...and set the kernel to execute them
+        lda #>t1addr            ; Push task 1 context to stack
+        pha                     ; so we can RTI, end up at t1addr
+        lda #<t1addr            ; and start executing task 1.
+        pha
+        lda #$20                ; Clear P, except for E bit (for 65816's)
+        pha			; Push for task 1.
+        lda $dc0d               ; C64: Silence the CIA 1 interrupts
+        lda $dd0d               ; c64: Silence the CIA 2 interrupts
+        rti                     ; Start Task 1!  w00t!
+
+; irq is the start of our interrupt service routine.
+; This is where the real kernel scheduling is done!
+
+irq
+        pha                     ; Save A so we won't lose it!
+        txa                     ; X too!
+        pha
+        ldx task                ; Find out what task we're on
+        lda #$00                ; Init A for countdown
+
+; irqcnt will generate an index for the pre-empted task.
+; If maxtsk is too high, the kernel will crash out
+
+irqcnt
+        dex                     ; irqcnt builds index for task context save
+        beq irqsav              ; Exit loop if x=0
+        clc                     ; Carry bit set will break the kernel! 11/25
+        adc #$07                ; Add 7 to A for each task number
+        bcc irqcnt              ; Repeat loop
+irqcntreset
+        bcs init                ; Too many tasks!  Reset kernel :(
+
+; irqsav will save all of the context information for the task that
+z; is being pre-empted, increment the task counter, and do a bounds
+; check on the task number, recycling to 1 if tasks has been exceeded.
+
+irqsav
+        tax                     ; Load index
+        sty t1y,x               ; Store Y
+        pla                     ; Pull X
+        sta t1x,x               ; Store X
+        pla                     ; Pull A
+        sta t1a,x               ; Store A
+        pla                     ; Pull P (IRQ stored)
+        sta t1p,x               ; Store P
+        pla                     ; Pull PC low byte
+        sta t1pc,x              ; Store PC low
+        pla                     ; Pull PC high
+        sta t1pc+1,x            ; Store PC high
+        stx temp                ; Save index
+        tsx                     ; Get current SP
+        txa                     ; Save SP elsewhere
+        ldx temp                ; Restore index
+        sta t1sp,x              ; Save SP
+        ldx task                ; Load task number
+        inx                     ; Increment task number
+        cpx tasks               ; Compare with running task counter
+        bne irqtsk              ; If not at max, proceed normally
+        ldx #$01                ; Reset task number to 1
+
+; All irqtsk does is provide a skip point to jump over the code
+; that resets the task counter to task 1
+
+irqtsk
+        stx task                ; Save task number
+        lda #$00                ; Re-init A for next counter
+
+; irqcnt2 will generate an index for each task based on its number.
+; The branch to irqcntreset is here because init is too far to branch.
+
+irqcnt2
+        dex                     ; irqcnt2 builds index for task context load
+        beq irqload             ; Exit loop if x=0
+        clc                     ; Carry bit set will break the kernel! 11/25
+        adc #$07                ; Add 7 to A for each task number
+        bcc irqcnt2             ; Repeat loop
+        bcs irqcntreset         ; Maxed out tasks will force init.
+
+; irqload performs the loading of the context from zero-page memory
+; and returns from the interrupt to the next task
+
+irqload
+        tax                     ; Load index
+        stx temp                ; Save index to memory temporarily
+        lda t1sp,x              ; Load SP
+        tax                     ; Prepare SP for change
+        txs                     ; Change SP
+        ldx temp                ; Restore index
+        lda t1pc+1,x            ; Load PC high
+        pha                     ; Push PC high
+        lda t1pc,x              ; Load PC low
+        pha                     ; Push PC low
+        lda t1p,x               ; Load P
+        pha                     ; Push P
+        lda t1a,x               ; Load A
+        sta temp                ; Temporarily save A
+        ldy t1y,x               ; Load Y
+        lda t1x,x               ; Load X with A
+        tax                     ; Move X's value from A into X
+        lda temp                ; Load A from temporary location
+        lda $dc0d               ; c64: Silence the CIA 1 interrupts
+        lda $dd0d               ; c64: Silence the CIA 2 interrupts
+        rti                     ; Return from IRQ into next task

@@ -1,0 +1,44 @@
+README FOR C02 SCHEDULER ALPHA RELEASE
+--------------------------------------
+
+11/25/2004
+
+Now that the scheduler is finished, I have to make some critical decisions
+regarding things such as locking and device drivers.
+First off, locking will best be accomplished by using SEI/CLI around the
+code that modifies potentially shared memory locations, provided the IRQ
+generator will hold the IRQ line low until it is acknowledged.  The 6526
+in the C64 does this automatically, and the 6522 may also do this.
+Device drivers should be written as small as possible, because we need
+memory for APPLICATIONS!  If anyone wants to write a TCP/IP stack or a
+C2N cassette driver, for example...they need to fit in less than 1K, and
+preferably will fit in 256 bytes or less.  (Hey, I wrote an ENTIRE KERNEL
+SCHEDULER that fits in less than 256 bytes, so yeah...)
+I want to assign some zero-page locations that will be part of the context
+switcher so that applications can use zero-page without 
+A tenative memory map of the system (on a C64) is as follows:
+
+Location(s) | Description of location(s)
+------------+------------------------------------------------------------
+$0000-$0001 | RESERVED for 6510 CPU banking functions!
+$0002-$00DF | Device driver zero-page storage
+$00E0-$00E6 | Application context-switched zero-page storage
+$00E8-$00F8 | Shared zero-page storage (use with extreme caution!)
+$00F9-$00FD | Message passing area (reserved for now)
+$00FE-$00FF | Text cursor pointer
+$0100-$01FF | 65xx CPU stack
+$0200-$02FF | Process CPU context storage (up to 36 contexts)
+$0300-$03FF | Process ZP context storage (up to 36 contexts)
+$0400-$07E7 | VIC-II text screen memory
+$07E8-$07FF | VIC-II sprite pointers
+$0800-$2800 | 8K application RAM or VIC-II hi-res screen
+$2800-$BFFF | 42K application RAM
+$C000-$CFFF | 4K kernel/driver area
+$D000-$DFFF | I/O range or character generator ROM or RAM
+            | This RAM is intended for caching and networking.
+            | Programs here will not be able to perform I/O!!!
+$E000-$FFF9 | 8K kernel/driver area
+$FFFA-$FFFF | 65xx CPU MNI/RESET/IRQ vectors
+
+On non-C64 systems (with no VIC-II) there will be more memory for loading
+programs.

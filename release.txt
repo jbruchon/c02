@@ -1,0 +1,37 @@
+                           C02 OS Scheduler Alpha
+                            For 6500-class CPUs
+
+
+The C02 kernel was started on 11/22/2004, inspired by the minikernel by
+Joachim Deboy.  His minikernel does not assemble on A6 and has sparse
+documentation and comments; it is also hard-coded to support four tasks.
+I have long dreamed of writing my own OS, if only for fun, and a somewhat
+extensible "kernel" would be a great place for any OS to start.  Linus
+Torvalds himself began Linux as a tiny, simple task switcher with two
+processes, and this kernel is no different...yet anyway.
+
+OBJECTIVES
+----------
+
+* Extensibility at all phases of development
+* Retain low task-switching imposed latency
+* Support a reasonable number of tasks
+* EXTREMELY WELL COMMENTED CODE IS A MUST!
+* Stability and speed
+
+From the beginning, the kernel is a heavily-commented piece of software.
+I had one hell of a time figuring out some of the simplest things about
+OS development and if any newbies read my code, they will be able to read
+and understand everything that the code is supposed to do, provided they
+have already learned 6502 assembly and understand how the registers and
+instructions work.
+
+Any bugfixes or improvements are welcome.
+
+This source code is hereby released into the public domain.  Do what you
+will with it.  Future releases may or may not be public domain.  It is
+entirely up to whoever releases them!
+
+Official releases will ALWAYS be directly from me (Jody Bruchon).
+
+Enjoy it!
