@@ -1,4 +1,4 @@
-                           C02 OS Scheduler Alpha
+                        C02 Operating System Kernel
                             For 6500-class CPUs
 
 
@@ -28,10 +28,9 @@ instructions work.
 
 Any bugfixes or improvements are welcome.
 
-This source code is hereby released into the public domain.  Do what you
-will with it.  Future releases may or may not be public domain.  It is
-entirely up to whoever releases them!
-
 Official releases will ALWAYS be directly from me (Jody Bruchon).
 
-Enjoy it!
+One more thing:  This source code is Copyright (C) 2004, 2005 by Jody Bruchon.
+If you want to do something with it that is not strictly for personal use, please
+contact me directly.  I like public domain stuff, but if I am going to spend weeks
+developing an OS, I intend to protect my hard work from being negatively exploited.

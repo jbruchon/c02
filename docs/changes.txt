@@ -1,0 +1,23 @@
+CHANGELOG
+---------
+
+11/22/2004  Jody Bruchon (jbruchon@nc.rr.com)
+
+Started initial work on kernel code
+
+
+11/25/2004  Jody Bruchon (jbruchon@nc.rr.com)
+
+Completed basic kernel scheduler with C64-specific IRQ handling.  Entire scheduler with init routines fits in ~186 bytes! :)
+Now we need device drivers... :(
+
+12/28/2004  Jody Bruchon (jbruchon@nc.rr.com)
+
+Scheduler now has an offset cache instead of loops.  Code down to 163 bytes total, *89 bytes for the scheduler!*  Cycle count is now 156 cycles per context switch (+3 if looping back to task 1).  This count does not change with higher quantities of running tasks.
+
+12/30/2004  Jody Bruchon (jbruchon@nc.rr.com)
+
+Completed initial rebuild for ACME assembler.  Split scheduler into sub-arch folders
+and now use a file "build.cfg" to define how to construct the source for the target.
+Used stack instructions instead of zero page stores to save two bytes in "irqload"
+in 6502/sched/irq.s and 65c02/sched/irq.s.  Optimized sched.s parts for 65c02 CPU.
