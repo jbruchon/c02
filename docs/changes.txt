@@ -5,19 +5,75 @@ CHANGELOG
 
 Started initial work on kernel code
 
-
 11/25/2004  Jody Bruchon (jbruchon@nc.rr.com)
 
-Completed basic kernel scheduler with C64-specific IRQ handling.  Entire scheduler with init routines fits in ~186 bytes! :)
+Completed basic kernel scheduler with C64-specific IRQ handling.  Entire
+scheduler with init routines fits in ~186 bytes! :)
 Now we need device drivers... :(
 
 12/28/2004  Jody Bruchon (jbruchon@nc.rr.com)
 
-Scheduler now has an offset cache instead of loops.  Code down to 163 bytes total, *89 bytes for the scheduler!*  Cycle count is now 156 cycles per context switch (+3 if looping back to task 1).  This count does not change with higher quantities of running tasks.
+Scheduler now has an offset cache instead of loops.  Code down to 163 bytes
+total, *89 bytes for the scheduler!*  Cycle count is now 156 cycles per
+context switch (+3 if looping back to task 1).  This count does not change
+with higher quantities of running tasks.
 
 12/30/2004  Jody Bruchon (jbruchon@nc.rr.com)
 
-Completed initial rebuild for ACME assembler.  Split scheduler into sub-arch folders
-and now use a file "build.cfg" to define how to construct the source for the target.
-Used stack instructions instead of zero page stores to save two bytes in "irqload"
-in 6502/sched/irq.s and 65c02/sched/irq.s.  Optimized sched.s parts for 65c02 CPU.
+Completed initial rebuild for ACME assembler.  Split scheduler into sub-arch
+folders and now use a file "build.cfg" to define how to construct the source
+for the target.  Used stack instructions instead of zero page stores to save
+two bytes in "irqload" in 6502/sched/irq.s and 65c02/sched/irq.s.  Optimized
+sched.s parts for 65c02 CPU.
+
+01/02/2005  Jody Bruchon (jbruchon@nc.rr.com)
+
+Added conditionals around some C64 code I missed in kernel/6502/sched/init.s.
+Added a build option for the Nintendo Entertainment System (NES) to provide a
+platform for portability testing.  No NES-specific code yet.  Moved the
+6502/sched/* to just 6502/* because the extra folder isn't necessary.  Made a
+driver hook point and set down framework for driver installation.  The first
+driver will be for the Commodore 64 keyboard, and the second for the VIC-II.
+Support for the VIC-20's original VIC-I chip is planned eventually.  I have
+yet to decide how I will standardize the console functions cross-platform.
+
+02/25/2005  Jody Bruchon (jbruchon@nc.rr.com)
+
+Needed some downtime to take care of a burst in computer business lately.
+Cleaned up the CIA portion of the IRQ hooks; there is not a stub of code in
+the IRQ hooks file anymore for C64 CIA chips.  Cleaned a syntax error from
+c64key.s driver code, but still haven't managed to finish the code itself.
+I am considering collapsing the code down from the kernel folder.
+
+04/18/2005  Jody Bruchon (jbruchon@nc.rr.com)
+
+Downtime can get annoying...I got an email that inspired me to continue, so
+here we go again.  Fixed endianness error that breaks IRQ/RES/NMI vectors
+if ROM building is selected.  Reworked and partially commented the main
+build configuration to be clearer and have more choices for generic arches.
+Began using Daryl Rictor's 65C02 Simulator as the new development platform
+due to its simplicity and flexibility.  Fixed problem with nmi variable not
+being set which caused ROM building to choke (option added to make NMI just
+RTI [without adding one byte of code!], which in some cases may be
+desirable).
+
+4/26/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Made the simterm console driver automatically map CR to CR+LF.  This makes
+the ENTER key work properly without further modification.  Also cleaned up
+the documentation a *tiny* bit.  Began working on SYSLIB.S, which will be
+the core API code.  Primary focus right now is on getting some form of a
+common console interface API in place to allow interactivity.
+
+4/27/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Cleaned up build configurations and moved most of it to the file
+INCLUDE\SETBUILD.S for known arches.  Some settings are wrong for now, but
+the Rictor 65C02 simulator option works properly at least.  Did MAJOR work
+on 6502\SYSLIB.S to get console and keyboard queue functions working.
+Began the jump table to some extent.  Rewrote DRIVER\SIMTERM.S driver
+to attach to common functions in SYSLIB.S and be more generic.  Tested the
+functions and repaired until everything built properly.  As of now, the
+termtest.s program running on a kernel built for the Ric65C02 simulator
+successfully echoes the keyboard input to the terminal output using device
+numbers assigned to "system console."

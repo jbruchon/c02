@@ -1,0 +1,157 @@
+C02 Operating System
+Build Configuration Documentation
+---------------------------------
+
+The file BUILD.CFG contains parameters that determine how C02's kernel
+is to be constructed.  Parameters that are commented with a semicolon or
+are not defined will be ignored during the build process.
+
+Pre-padding
+-----------
+
+CONFIG_PREPEND=$xxxx
+Prepends $xxxx bytes of $00 to the final output image.
+
+
+CPU Selection
+-------------
+
+CONFIG_6502=1
+Define this if you are using a 6502-compatible CPU such as the 6502 or
+6510.  This option is "universally compatible" for most purposes, unless
+you are building for a system that uses the 65816's addressing fully.
+
+CONFIG_65C02=1
+Define this if you have a Rockwell or WDC 65C02 CPU to use the extra
+instructions (most notably STZ/PHX, etc.) on these CPUs.  This option
+DOES NOT work on any NMOS 6502 or compatibles, you MUST have a Rockwell
+or WDC 65C02 to use this (Rockwell is untested, so user beware!)
+
+CONFIG_65816EMU=1
+Define this option to use 65816 instructions, but not use 65816 native
+mode in the kernel at all.  This option may not work on all 65816 systems
+and will basically act like you have a 6502 with the new 65816
+instruction set and will exploit the "B" accumulator as well.
+[BROKEN]
+
+CONFIG_65816=1
+Define this for a platform based on the 65816 to put the CPU into 65816
+native mode and use all of the 65816's features.
+[BROKEN]
+
+
+Architecture Definition
+-----------------------
+
+CONFIG_ARCH_GENERIC=1
+This option is mainly for porting to new system architectures.  It will
+allow you to set the initial task's core manually, as well as the location
+that C02's kernel starts at.
+
+CONFIG_ARCH_GENERIC_INIT=$xxxx
+This generic option provides the ability to hard-code the address at which
+the initial task begins executing.  Undefine this unless you know what you
+are doing.
+
+CONFIG_ARCH_GENERIC_CORE=$xxxx
+Set this option to the starting address of the kernel core only if you are
+building with CONFIG_ARCH_GENERIC
+
+CONFIG_CUSTOM_INIT_TASK=1
+This prefixes "custom.s" to the kernel initialization and core code.
+Undefine CONFIG_ARCH_GENERIC_INIT and RESVEC if you use this.
+
+CONFIG_ARCH_C64=1
+Define this if you're using a Commodore 64.
+
+CONFIG_ARCH_VIC20=1
+Define this if you're using a VIC-20.
+[BROKEN]
+
+CONFIG_ARCH_C64SCPU=1
+If you have a Commodore 64 with a SuperCPU, define this.
+[BROKEN]
+
+CONFIG_ARCH_NES=1
+If you want to build C02 for execution on the Nintendo Entertainment
+System, define this.
+[BROKEN]
+
+CONFIG_NES_HEADER=1
+Define this to prefix an iNES-compatible header to the C02 code base
+for use on a NES emulator.
+
+CONFIG_USE_INIT_CODE=1
+Define this at all times, unless you have custom initialization code that
+takes care of C02's inits elsewhere, such as a fancy boot loader.
+
+CONFIG_BUILD_ROM=1
+If C02 will be used as a ROM, define this to get hard-coded NMI, IRQ, and
+RESET vectors placed at the end of the ROM image file.
+
+RAM_AT_FF_PAGE=1
+This inserts instructions in the standard initialization that write the
+values for NMI, RESET, and IRQ vectors into $fffa-$ffff as if RAM exists
+at those locations.  This is used on the C64 because there is RAM under
+the KERNAL ROM.  Systems using similar bank-switching may want this.  Don't
+define it for non-generic builds.
+
+RESVEC=$xxxx
+RESET vector for the ROM.  This should point to the code you want to
+handle a CPU reset.  Define this ONLY if you are building a ROM AND are
+not using the standard initialization code.
+
+ctxpage=$xxxx
+Memory page to use for context storage.  This must be defined for generic
+builds, but most supported systems have this pre-defined.
+
+Device Drivers
+--------------
+YOU MUST NOT define more than one console output driver at a time.  I/O
+port drivers don't count (such as 6551).
+
+
+CONFIG_INPUT_C64_KEY=1
+If you have a Commodore 64, define this to use its keyboard.
+[BROKEN]
+
+CONFIG_INPUT_SIMTERM=1
+Daryl Rictor's 65C02 Simulator has a simple terminal.  Define this to use
+the keyboard input and console output on this emulated SBC. [Console]
+
+CONFIG_INPUT_NES_PAD=1
+If you have a Nintendo Entertainment System, define this to use the NES
+control pads.  This can be used with an on-screen keyboard task to give
+user input.
+[BROKEN]
+
+CONFIG_CIA_C64=1
+If you have a Commodore 64 and you want to have a driver that manages
+accesses to the non-IEC, non-keyboard parts of the CIA chips (such as
+the user port), define this.  If you don't need to use the user port
+for I/O tasks, this may be unnecessary.
+[BROKEN]
+
+CONFIG_SERIAL_6551=1
+CONFIG_SERIAL_6551_BASE=$xxxx
+If you have a 6551 serial UART chip, you can define these to have the
+6551 driver manage it.
+[BROKEN]
+
+CONFIG_VIC_I=1
+If you have a VIC-20, this option activates the driver for the VIC video
+chip.  The VIC's sound ports are in a separate driver.  Unless the VIC
+will be operating headless, you'll want this. [Console]
+[BROKEN]
+
+CONFIG_VIC_II=1
+If you have a Commodore 64, this option activates the VIC-II video chip
+driver.  Unless the C64 will be operating headless for some reason, you
+will want this. [Console]
+[BROKEN]
+
+CONFIG_NES_PPU=1
+If you have a Nintendo Entertainment System, this option activates the
+PPU video driver.  Unless you're doing really funky stuff to the NES that
+doesn't require video, you'll want this! [Console]
+[BROKEN]

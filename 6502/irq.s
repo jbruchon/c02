@@ -1,10 +1,6 @@
-; Task Scheduler and IRQ Handler
-; C02/kernel/65c02/sched/irq.s
-;
+; C02 Operating System
+; irq.s: IRQ handler and IRQ hook execution point
 ; Copyright (C) 2004, 2005 by Jody Bruchon
-
-irq
-        phx                     ; Save X [Optimized]
 
 ; If maxtsk is too high, the kernel will crash out
 ; irqsav will save all of the context information for the task that
@@ -12,23 +8,50 @@ irq
 ; check on the task number, recycling to 1 if tasks has been exceeded.
 ; irqsav also checks the offset cache for overflow and re-inits if so.
 
-irqsav
+irq
+
+!ifdef CONFIG_6502 {
+        pha                     ; Save A so we won't lose it!
+
+; This code performs the context save.
+
+        txa                     ; Push X into A to be saved
         ldx offset              ; Load the offset cache
-        sty t1y,x               ; Store Y
-        sta t1a,x               ; Store A [Optimized]
+        sta ctxpage+t1x,x       ; Store X
+        tya
+        sta ctxpage+t1y,x       ; Store Y
+        pla                     ; Pull A
+        sta ctxpage+t1a,x       ; Store A
+}
+!ifdef CONFIG_65C02 {
+        phx                     ; Save X [Optimized]
+        ldx offset              ; Load the offset cache
+        sta ctxpage+t1a,x       ; Store A
+        tya
+        sta ctxpage+t1y,x       ; Store Y
         pla                     ; Pull X
-        sta t1x,x               ; Store X
+        sta ctxpage+t1x,x       ; Store X
+}
+!ifdef CONFIG_65816EMU {
+        phx                     ; Save X [Optimized]
+        ldx offset              ; Load the offset cache
+        sta ctxpage+t1a,x       ; Store A
+        tya
+        sta ctxpage+t1y,x       ; Store Y
+        pla                     ; Pull X
+        sta ctxpage+t1x,x       ; Store X
+}
         pla                     ; Pull P (IRQ stored)
-        sta t1p,x               ; Store P
+        sta ctxpage+t1p,x       ; Store P
         pla                     ; Pull PC low byte
-        sta t1pc,x              ; Store PC low
+        sta ctxpage+t1pc,x      ; Store PC low
         pla                     ; Pull PC high
-        sta t1pc+1,x            ; Store PC high
+        sta ctxpage+t1pc+1,x    ; Store PC high
         stx temp                ; Save index
         tsx                     ; Get current SP
         txa                     ; Save SP elsewhere
         ldx temp                ; Restore index
-        sta t1sp,x              ; Save SP
+        sta ctxpage+t1sp,x      ; Save SP
         clc                     ; Carry bit can kill our addition...
         lda offset              ; Retrieve the offset cache
         adc #$07                ; Increment offset cache by 7
@@ -49,29 +72,32 @@ irqtsk
         sta offset              ; Save offset cache
         stx task                ; Save task number
 
-; irqload performs the loading of the context from zero-page memory
-; and returns from the interrupt to the next task
+; This code loads the context from memory and returns from the
+; interrupt to the next task
 
-irqload
         tax                     ; Load new offset index
-        lda t1sp,x              ; Load SP
+        lda ctxpage+t1sp,x      ; Load SP
         tax                     ; Prepare SP for change
         txs                     ; Change SP
-        lda offset              ; Restore clobbered offset index
-        lda t1pc+1,x            ; Load PC high
+
+; IRQ hooks are here because we can safely clobber AXY now
+
+!src "include/irqhooks.s"
+
+        ldx offset              ; Restore clobbered offset index
+        lda ctxpage+t1pc+1,x    ; Load PC high
         pha                     ; Push PC high
-        lda t1pc,x              ; Load PC low
+        lda ctxpage+t1pc,x      ; Load PC low
         pha                     ; Push PC low
-        lda t1p,x               ; Load P
+        lda ctxpage+t1p,x       ; Load P
         pha                     ; Push P
-        lda t1a,x               ; Load A
+        lda ctxpage+t1a,x       ; Load A
         pha                     ; Temporarily save A
-        ldy t1y,x               ; Load Y
-        lda t1x,x               ; Load X with A
+        ldy ctxpage+t1y,x       ; Load Y
+        lda ctxpage+t1x,x       ; Load X with A
         tax                     ; Move X's value from A into X
         pla                     ; Load A from temporary location
-!ifdef CONFIG_ARCH_C64 {
-        lda $dc0d               ; c64: Silence the CIA 1 interrupts
-        lda $dd0d               ; c64: Silence the CIA 2 interrupts
+!ifdef CONFIG_NULL_NMI {
+nmivec
 }
         rti                     ; Return from IRQ into next task

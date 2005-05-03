@@ -1,0 +1,64 @@
+                      C02 OS Driver/API Documentation
+                        C64 Keyboard Driver "c64key"
+                      ===============================
+
+This file is part of the C02 OS API documentation.
+
+KEYBOARD DRIVER CORE
+
+The C64 keyboard driver is designed by the information in the Commodore 64
+Programmer's Reference Guide regarding keyboard scanning methods.
+
+GENERAL INFORMATION
+
+Scancodes are $00-$3F for the 64-switch keyboard matrix.
+    |$x0|$x1|$x2|$x3|$x4|$x5|$x6|$x7|$x8|$x9|$xA|$xB|$xC|$xD|$xE|$xF
+--------------------------------------------------------------------
+$0x | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P
+$1x | Q | R | S | T | U | V | W | X | Y | Z | 0 | 1 | 2 | 3 | 4 | 5
+$2x | 6 | 7 | 8 | 9 |SPC| - | + | . | , | ; | : | / | @ | ^ | = | *
+$3x |U/D|L/R|HOM|DEL|RET|F1 |F3 |F5 |F7 |<--|GBP|LSH|RSH|CTL|C= |STP
+
+The following special keys:
+[RUN/STOP] [C=] [CTRL] [SHIFT]
+are trapped to generate a separate scancode whenever they modify a key in
+the queue.  These scancode modifiers are as follows:
+
+         |7|6|5|4|3|2|1|0
+-------------------------
+L SHIFT  |0 1 0 0 0 0 0 1 =$41
+R SHIFT  |0 1 0 0 0 0 1 0 =$42
+CTRL     |0 1 0 0 0 1 0 0 =$44
+C=       |0 1 0 0 1 0 0 0 =$48
+RUN/STOP |0 1 0 1 0 0 0 0 =$50
+
+If multiple bits in 0-4 are set, this indicates multiple modifier keypresses.
+For example, suppose the keyboard queue holds $46,"A".  In this case, the
+program can see that the user held down CTRL+(R)SHIFT+A, instead of just A
+or CTRL+A or SHIFT+A.  Likewise, if a reset combination similar to the IBM PC
+CTRL-ALT-DEL was implemented, its scancodes would be $4C,[INST/DEL].  Most
+programs will ignore $3B-$3F because of this feature.  If you are writing a
+game, for example, and want to use left shift and right shift as pinball
+paddle triggers, these scancodes will come in handy later.
+
+MODULES
+
+c64kirq:
+This is the IRQ hook entry point for the keyboard scanner.  It will set up
+CIA #1 at $dc00's ports for scanning, then do a full scan of the keyboard
+if the returned value is not %11111111 (no switches pressed).  If the value
+IS %11111111, the scanner checks the c64kflags memory location to see if a
+key WAS pressed before this scan.  If so, the key's scancode is queued, but
+with the unpress bit 7 set.  The last keypress scancode is stored in c64kkey
+and special key presses are determined by the c64kflags:
+
+bit |                     description
+-------------------------------------------------------
+7   | 1=Key was pressed on last scan, 0=no keys pressed
+6   | Reserved
+5   | Reserved
+4   | 1=RUN/STOP key was pressed
+3   | 1=Commodore key was pressed
+2   | 1=Control key was pressed
+1   | 1=Right Shift key was pressed
+0   | 1=Left Shift key was pressed
