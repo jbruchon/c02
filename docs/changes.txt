@@ -77,3 +77,11 @@ functions and repaired until everything built properly.  As of now, the
 termtest.s program running on a kernel built for the Ric65C02 simulator
 successfully echoes the keyboard input to the terminal output using device
 numbers assigned to "system console."
+
+4/27/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Did some framework for adding proper NES drivers.  Because the NES uses NMI,
+a critical section entry/exit function had to be installed in Syslib.  This
+will include driver-dependent IRQ/NMI enable/disable codes.  The console
+driver for NES will need a small buffer and will need to dump that buffer
+on a VBlank.

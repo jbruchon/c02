@@ -99,5 +99,10 @@ irqtsk
         pla                     ; Load A from temporary location
 !ifdef CONFIG_NULL_NMI {
 nmivec
-}
+        rti
+} else {
         rti                     ; Return from IRQ into next task
+nmivec
+!src "INCLUDE/NMIHOOKS.S"       ; NMI hooks (if applicable)
+        rti
+}

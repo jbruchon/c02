@@ -2,8 +2,8 @@
 ; main.s: Kernel Image Core
 ; Copyright (C) 2004, 2005 by Jody Bruchon
 
-!to "main.o",plain
-!sl "ksyms.txt"
+!to "MAIN.O",plain
+!sl "KSYMS.TXT"
 
 ; Load build configuration variables
 !src "BUILD.CFG"
@@ -39,6 +39,7 @@ RESVEC
 ; Device drivers
 !ifdef CONFIG_INPUT_C64_KEY !src "DRIVER/C64KEY.S"
 !ifdef CONFIG_INPUT_NES_PAD !src "DRIVER/NESPAD.S"
+!ifdef CONFIG_NES_PPU !src "DRIVER/NESPPU.S"
 !ifdef CONFIG_INPUT_SIMTERM !src "DRIVER/SIMTERM.S"
 !ifdef CONFIG_CIA_C64 !src "DRIVER/C64CIA.S"
 !ifdef CONFIG_SERIAL_6551 !src "DRIVER/6551.S"

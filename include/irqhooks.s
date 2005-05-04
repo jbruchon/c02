@@ -11,6 +11,9 @@
 !ifdef CONFIG_INPUT_NES_PAD {
         jsr nespadirqhook       ; NES gamepad polling
 }
+!ifdef CONFIG_NES_PPU {
+        jsr nesppuirqhook       ; NES PPU operations
+}
 !ifdef CONFIG_SERIAL_6551 {
         jsr ser6551irqhook      ; 6551 UART I/O device
 }

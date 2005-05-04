@@ -17,7 +17,6 @@ getchar
         lda mutex1              ; Load mutex byte
         and #getcharM            ; Check getchar mutex bit
         beq getcharMok          ; If zero, mutex unset so continue
-
         jmp resourcelocked      ; Set mutex = resource locked
 
 getcharMok
@@ -103,6 +102,11 @@ kbqueuedone
         stx kbqueueB            ; Store new end pointer
         rts
 
+; criticalsection will disable all interrupts are off before entering a
+; critical section.  uncriticalsection will reverse the process.
+; These routines are maintained as a separate file.
+
+!src "INCLUDE/CRITICAL.S"       ; Attach critical section entry conditionals
 
 ; ***ERROR CODES***
 
