@@ -57,7 +57,7 @@ being set which caused ROM building to choke (option added to make NMI just
 RTI [without adding one byte of code!], which in some cases may be
 desirable).
 
-4/26/2005   Jody Bruchon (jbruchon@nc.rr.com)
+04/26/2005   Jody Bruchon (jbruchon@nc.rr.com)
 
 Made the simterm console driver automatically map CR to CR+LF.  This makes
 the ENTER key work properly without further modification.  Also cleaned up
@@ -65,7 +65,7 @@ the documentation a *tiny* bit.  Began working on SYSLIB.S, which will be
 the core API code.  Primary focus right now is on getting some form of a
 common console interface API in place to allow interactivity.
 
-4/27/2005   Jody Bruchon (jbruchon@nc.rr.com)
+04/27/2005   Jody Bruchon (jbruchon@nc.rr.com)
 
 Cleaned up build configurations and moved most of it to the file
 INCLUDE\SETBUILD.S for known arches.  Some settings are wrong for now, but
@@ -78,10 +78,23 @@ termtest.s program running on a kernel built for the Ric65C02 simulator
 successfully echoes the keyboard input to the terminal output using device
 numbers assigned to "system console."
 
-4/27/2005   Jody Bruchon (jbruchon@nc.rr.com)
+04/28/2005   Jody Bruchon (jbruchon@nc.rr.com)
 
 Did some framework for adding proper NES drivers.  Because the NES uses NMI,
 a critical section entry/exit function had to be installed in Syslib.  This
 will include driver-dependent IRQ/NMI enable/disable codes.  The console
 driver for NES will need a small buffer and will need to dump that buffer
-on a VBlank.
+on a VBlank.  Also fixed case in source files so case-sensitive OSes (Linux)
+should be able to find the files properly.
+
+05/06/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+An untested Commodore 64 keyboard driver has been written today, and a null
+VIC-II console driver is now in place.  Debugger testing of the keyboard
+driver may begin soon.  Also combined some scattered variables in various
+driver and include files into SYSVARS.S to keep all variables in one common
+location for easier management.  The system core is slightly more than 300
+bytes including Syslib now, and with the C64 keyboard driver expands by
+about 200 bytes in size.  Still no memory management, disk access, or program
+loader code yet, but when the basic console drivers are firmly in place, that
+development can begin.

@@ -18,6 +18,8 @@ init
         stz mutex1
 }
 
+!src "DRIVER/DRVINIT.S"         ; Per-driver initialization code
+
 !ifdef CONFIG_ARCH_C64 {
         lda #$05                ; Make SURE 6510 keeps I/O banked in!
         sta $01                 ; LORAM+CHAREN=I/O.  CHAREN only=RAM :(
@@ -62,8 +64,4 @@ init
         pha
         lda #$20                ; Clear P, except for E bit (for 65816's)
         pha			; Push for task 1.
-!ifdef CONFIG_ARCH_C64 {
-        lda $dc0d               ; C64: Silence the CIA 1 interrupts
-        lda $dd0d               ; c64: Silence the CIA 2 interrupts
-}
         rti                     ; Start Task 1!  w00t!

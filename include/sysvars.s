@@ -6,7 +6,7 @@
 ; so non-6510 systems don't waste ZP space but 6510 systems don't
 ; misbehave either.
 
-gzpoffset=$00
+!set gzpoffset=$00
 !ifdef CPU_6510 !set gzpoffset=$02
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -28,6 +28,23 @@ tasks   =$02+gzpoffset          ; Total running tasks quantity storage
 offset  =$03+gzpoffset          ; Offset cache storage
 
 ;;;;;;;;;;;;;;;;;;;;;;;
+; Keystroke input queue constants
+kbqueueA = $0300
+kbqueueB = $0301
+kbqueue = $0302
+kbqueuelen = $0d        ; length in bytes (must be $04 or higher)
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Commodore 64 keyboard driver
+c64kflags=$04+gzpoffset
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Rictor's 65C02 simulator terminal driver
+simtermin = $8000
+simtermstb = $8001
+simtermout = $8010
+
+;;;;;;;;;;;;;;;;;;;;;;;
 ; Syslib global variables
 
 ; Library mutual exclusion flags
@@ -35,6 +52,4 @@ offset  =$03+gzpoffset          ; Offset cache storage
 
 mutex1  =$04+gzpoffset          ; Mutex 1
   getcharM=%00000001            ; getchar mutex
-  putcharM=%00000010            ; putchar mutex 
-
-
+  putcharM=%00000010            ; putchar mutex
