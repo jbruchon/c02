@@ -8,9 +8,6 @@
 
 ; - Character I/O -
 
-sgetchar
         jmp getchar
-sputchar
         jmp putchar
-squeuekey
         jmp queuekey

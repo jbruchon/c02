@@ -3,5 +3,3 @@ C02 Operating System TODO List
 
 * Terminal types will be needed in the far future; for now, the specifics
   of each "dumb terminal" driver are hard-coded.
-
-* Get a console up and running.

@@ -4,7 +4,7 @@
 
 ; If the system has a 6510 CPU, push all globals forward by 2
 ; so non-6510 systems don't waste ZP space but 6510 systems don't
-; misbehave either.
+; misbehave either.  What an annoyance, eh?
 
 !set gzpoffset=$00
 !ifdef CPU_6510 !set gzpoffset=$02
@@ -26,23 +26,32 @@ task    =$00+gzpoffset          ; Kernel current task number storage
 temp    =$01+gzpoffset          ; Temporary kernel storage
 tasks   =$02+gzpoffset          ; Total running tasks quantity storage
 offset  =$03+gzpoffset          ; Offset cache storage
+systemflags=$04+gzpoffset       ; System core flags register
+
+criticalflag   =%00000001       ; Critical Section (scheduler disable) flag
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Keystroke input queue constants
-kbqueueA = $0300
-kbqueueB = $0301
-kbqueue = $0302
-kbqueuelen = $0d        ; length in bytes (must be $04 or higher)
+kbqueue         =$0300
+kbqueuelen      =$0e            ; length in bytes (must be $04 or higher)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Commodore 64 keyboard driver
-c64kflags=$04+gzpoffset
+c64kflags       =$05+gzpoffset
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Rictor's 65C02 simulator terminal driver
-simtermin = $8000
-simtermstb = $8001
-simtermout = $8010
+simtermin       =$8000
+simtermstb      =$8001
+simtermout      =$8010
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Commodore 64 VIC-II driver
+vic2textbase    =$0400
+vic2crsrX       =$06+gzpoffset
+vic2crsrY       =$07+gzpoffset
+vic2vector      =$08+gzpoffset
+vic2vector2     =$09+gzpoffset
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Syslib global variables
@@ -51,5 +60,5 @@ simtermout = $8010
 ; Each byte serves eight Syslib routines with mutex functions.
 
 mutex1  =$04+gzpoffset          ; Mutex 1
-  getcharM=%00000001            ; getchar mutex
-  putcharM=%00000010            ; putchar mutex
+  getcharM     =%00000001       ; getchar mutex
+  putcharM     =%00000010       ; putchar mutex

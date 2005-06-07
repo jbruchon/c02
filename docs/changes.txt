@@ -98,3 +98,15 @@ bytes including Syslib now, and with the C64 keyboard driver expands by
 about 200 bytes in size.  Still no memory management, disk access, or program
 loader code yet, but when the basic console drivers are firmly in place, that
 development can begin.
+
+06/07/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+I am updating the documentation and beginning a new API document that will
+outline the function calls in Syslib.  Every documented call will end up
+with a jump table offset, but for now merely documenting them at all is
+enough.  Added critical section handler calls to Syslib instead of the way
+I was going with it which was totally stupid anyway.  To integrate this, a
+set of checks had to be added to IRQ.S to skip task switches if a certain
+flag (criticalflag) is set in systemflags.  The worst part is that some
+65C02 optimization is rendered pointless by this, but that's a small price
+to pay for critical section protection.

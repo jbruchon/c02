@@ -2,7 +2,7 @@ To build C02:
 Edit the file C02/BUILD.CFG for your target system
 Invoke ACME assembler as follows:
 
-acme -v2 main.s
+acme -v3 main.s
 
 If you don't see errors, everything went well.
 

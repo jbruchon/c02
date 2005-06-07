@@ -1,5 +1,5 @@
 ; C02 Operating System
-; testterm.s: Init program to test standard terminal functions
+; testterm.s: Initial task to echo console input to console output
 ; Copyright (C) 2004, 2005 by Jody Bruchon
 
 beginning

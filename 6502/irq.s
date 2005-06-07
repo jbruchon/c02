@@ -10,10 +10,18 @@
 
 irq
 
-!ifdef CONFIG_6502 {
+; Check flags for task switch disable
         pha                     ; Save A so we won't lose it!
+        lda systemflags         ; Load system flags
+        and #criticalflag       ; Check critical flag
+        beq irqokay1            ; If unset, go ahead
+        jmp irqhooks1           ; Otherwise skip task switch code
+irqokay1
+        pla
 
-; This code performs the context save.
+!ifdef CONFIG_6502 {
+
+; Perform the context save
 
         txa                     ; Push X into A to be saved
         ldx offset              ; Load the offset cache
@@ -72,9 +80,7 @@ irqtsk
         sta offset              ; Save offset cache
         stx task                ; Save task number
 
-; This code loads the context from memory and returns from the
-; interrupt to the next task
-
+; Switch stack pointer
         tax                     ; Load new offset index
         lda ctxpage+t1sp,x      ; Load SP
         tax                     ; Prepare SP for change
@@ -82,8 +88,18 @@ irqtsk
 
 ; IRQ hooks are here because we can safely clobber AXY now
 
+irqhooks1
 !src "include/irqhooks.s"
 
+; Check flags for task switch disable
+        lda systemflags         ; Load system flags
+        and #criticalflag       ; Check critical flag
+        beq irqokay2            ; If unset, go ahead
+        rti                     ; Otherwise return to program
+
+irqokay2
+
+; Load context and return from interrupt
         ldx offset              ; Restore clobbered offset index
         lda ctxpage+t1pc+1,x    ; Load PC high
         pha                     ; Push PC high
@@ -97,6 +113,7 @@ irqtsk
         lda ctxpage+t1x,x       ; Load X with A
         tax                     ; Move X's value from A into X
         pla                     ; Load A from temporary location
+
 !ifdef CONFIG_NULL_NMI {
 nmivec
         rti

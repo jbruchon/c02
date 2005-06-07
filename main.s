@@ -31,7 +31,7 @@ tskcnt  =$01                    ; Number of initial tasks running
 RESVEC
   !ifdef CONFIG_6502 !src "6502/INIT.S"
   !ifdef CONFIG_65C02 !src "6502/INIT.S"
-  !ifdef CONFIG_65816EMU !src "6502/INIT.S"
+  !ifdef CONFIG_65816EMU !src "65816EMU/INIT.S"
   !ifdef CONFIG_65816 !src "65816/INIT.S"
 }
 
@@ -49,18 +49,22 @@ RESVEC
 
 !ifdef CONFIG_6502 !src "6502/IRQ.S"
 !ifdef CONFIG_65C02 !src "6502/IRQ.S"
-!ifdef CONFIG_65816EMU !src "6502/IRQ.S"
+!ifdef CONFIG_65816EMU !src "65816EMU/IRQ.S"
 !ifdef CONFIG_65816 !src "65816/IRQ.S"
+
+; System library
 
 !ifdef CONFIG_6502 !src "6502/SYSLIB.S"
 !ifdef CONFIG_65C02 !src "6502/SYSLIB.S"
-!ifdef CONFIG_65816EMU !src "6502/SYSLIB.S"
+!ifdef CONFIG_65816EMU !src "65816EMU/SYSLIB.S"
 !ifdef CONFIG_65816 !src "65816/SYSLIB.S"
 
 ; The jump table loaded here is where system calls take place.
 
+!ifdef JMPTABLE_BASE {
 *=JMPTABLE_BASE
 !src "INCLUDE/JMPTABLE.S"
+}
 
 ; If your system has C02 in a ROM or boots into the init sequence by RESET,
 ; you will need to provide the RESET vector value in build.cfg

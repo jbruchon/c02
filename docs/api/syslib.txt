@@ -1,0 +1,53 @@
+                      C02 OS Driver/API Documentation
+                    Syslib:  C02 System Function Library
+                      ===============================
+
+This file is part of the C02 OS API documentation.
+
+SYSLIB DESCRIPTION
+
+Syslib is the C02 OS core system library.  It provides re-entrant system
+calls that provide a common interface across different platforms and drivers.
+Syslib's provided services and features include:
+
+* Number-based device I/O
+* Common key input queue service
+* Re-entrant code including mutex protection
+* Locked resources do not make programs sleep, allowing maximum control
+  over potential deadlock or resource-hog problems by the programmer
+
+SYSLIB-PROVIDED SYSTEM CALLS
+
+NAME:  getchar
+USES:  A X P
+USAGE:  Load X with the character device number to access.  If carry bit is
+        clear, A contains the next character from the device.  If carry bit
+        is set, A contains the device error number.
+
+NAME:  putchar
+USES:  A X Y P
+USAGE:  Load X with the character device number to access.  Load A with the
+        character to send to the device.  If carry bit is clear, the write
+        was successful.  If carry bit is set, A contains the device error
+        number.
+
+NAME:  queuekey
+USES:  A X P
+USAGE:  Load A with the byte to add to the system's keyboard queue.  If the
+        keyboard queue is full, carry will be set and A will contain the
+        error code 3 (the only valid error code for this operation).  This
+        call is used primarily by keyboard drivers, but is useful if you
+        want to force a key into the keyboard queue for some reason.
+
+NAME:  criticalsection
+USES:  A
+USAGE:  Calling this will disable task switches but leaves IRQ/NMI servicing
+        hooks functional.  If you must disable IRQs, do so very sparingly and
+        before you call this function.
+
+NAME:  uncriticalsection
+USES:  A
+USAGE:  Calling this will enable task switches.  This is the reverse of
+        calling criticalsection.  If you disable interrupts in your program,
+        you should enable them after calling this function to ensure proper
+        system operation.

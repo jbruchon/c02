@@ -8,13 +8,13 @@ init
 
 !ifdef CONFIG_6502 {
         lda #$00
-        sta kbqueueA            ; Clear keyboard queue pointers
-        sta kbqueueB
+        sta systemflags         ; Clear all system flags
+        sta kbqueue             ; Clear keyboard queue pointers
         sta mutex1              ; Clear Syslib mutex
 }
 !ifdef CONFIG_65C02 {
-        stz kbqueueA
-        stz kbqueueB
+        stz systemflags         ; Same as above.
+        stz kbqueue
         stz mutex1
 }
 

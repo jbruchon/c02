@@ -28,9 +28,7 @@ getcharMok
         jmp devnumfailure       ; Failed compares, put error
 
 consoleinput
-        jsr consoleget          ; Get from console
-        jmp getcharexit         ; Unset mutex and return
-
+        jsr consoleget          ; Get char from console
 getcharexit
         tax                     ; Save A
         lda #getcharM           ; Get mutex byte
@@ -40,30 +38,30 @@ getcharexit
         txa                     ; retrieve A
         rts
 
-; consoleget will perform the queue retrieval and pointer update
+; consoleget will perform queue retrieval and pointer update
 consoleget
         clc
-        ldx kbqueueA            ; Load keyboard queue start
-        cpx kbqueueB            ; Check against queue end
+        ldx kbqueue             ; Load keyboard queue pointer
         bne kbqnotnull          ; Non-zero = get char
         lda #$00                ; Zero = send a null char back
         rts
 kbqnotnull
-        ldx kbqueueA            ; Load queue ring start pointer
-        lda kbqueue,x           ; Load character from queue
+        lda kbqueue+1           ; Load character from queue
+        pha                     ; Temporarily save
+        cpx #$01                ; Are there two or more keys in queue?
+        beq kbqnocycle          ; <2 = no cycling
+        ldx #$01                ; Prepare to move buffer backwards
+        ldy #$00
+kbqcycle
         inx
-        cpx kbqueuelen          ; Check start ring pointer against ring top
-        beq kbqringwrap         ; If overflowing, wrap pointer to $00
-        stx kbqueueA            ; Increment ring start pointer
-        rts
-kbqringwrap
-!ifdef CONFIG_6502 {
-        ldx #$00
-        stx kbqueueA           ; Zero the ring pointer
-}
-!ifdef CONFIG_65C02 {
-        stz kbqueueA           ; Zero the ring pointer [Optimized]
-}
+        iny
+        lda kbqueue,x           ; Load char
+        sta kbqueue,y           ; Move back 1 space
+        cpx kbqueue             ; Check Y against current queue end
+        bne kbqcycle            ; If not done, recurse
+kbqnocycle
+        dec kbqueue             ; Decrement pointer
+        pla                     ; Restore value
         rts
 
 ; putchar will attempt to send a character to the specified output device.
@@ -87,26 +85,33 @@ putcharworked
 ; Put the byte you want to queue in A first!
 
 queuekey
-        clc
-        ldx kbqueueB            ; Get queue end pointer
-        inx                     ; Increment pointer for compare
-        cpx kbqueueA            ; Check if queue is full
-        beq kbqueuedone         ; If maxed, drop key
-        dex                     ; Return pointer to previous value
-        sta kbqueue,x           ; Store byte in queue
+        ldx kbqueue             ; Get current queue pointer
         inx
-        cpx #kbqueuelen         ; Check end pointer against queue end
-        bne kbqueuedone         ; If not at end, return
-        ldx #$00
-kbqueuedone
-        stx kbqueueB            ; Store new end pointer
+        cpx #kbqueuelen         ; Check against max length
+        beq queuekeyfull        ; If full, drop key
+        sta kbqueue,x           ; Store key
+        stx kbqueue             ; Store pointer
+        clc
+        rts
+queuekeyfull
+        jmp bufferfull          ; Oops!
+
+; criticalsection will disable the scheduler before entering a
+; critical section.  uncriticalsection will reverse the process.
+; This is highly preferred over doing sei/cli in your program!!!
+
+criticalsection
+        lda #criticalflag       ; Get bit mask
+        ora systemflags         ; Disable scheduler
+        sta systemflags         ; Store new flags
         rts
 
-; criticalsection will disable all interrupts are off before entering a
-; critical section.  uncriticalsection will reverse the process.
-; These routines are maintained as a separate file.
-
-!src "INCLUDE/CRITICAL.S"       ; Attach critical section entry conditionals
+uncriticalsection
+        lda #criticalflag       ; Get bit mask
+        eor #$ff                ; Invert bit mask
+        and systemflags         ; Apply mask to flags
+        sta systemflags         ; Store new flags
+        rts
 
 ; ***ERROR CODES***
 
@@ -116,6 +121,12 @@ devnumfailure
         rts
 
 resourcelocked
-        lda #$02                ; Error code $02 = "Resource in use"
+        lda #$02                ; Error code $02 = "Resource in use/locked"
         sec
         rts
+
+bufferfull
+        lda #$03                ; Error code $03 = "Buffer is full"
+        sec
+        rts
+
