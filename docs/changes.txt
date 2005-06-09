@@ -110,3 +110,8 @@ set of checks had to be added to IRQ.S to skip task switches if a certain
 flag (criticalflag) is set in systemflags.  The worst part is that some
 65C02 optimization is rendered pointless by this, but that's a small price
 to pay for critical section protection.
+
+06/07/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Added an 8-bit multiply routine to Syslib, but it is not re-entrant.  I
+cannot decide how to make it re-entrant.

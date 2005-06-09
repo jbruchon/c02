@@ -11,15 +11,13 @@
 irq
 
 ; Check flags for task switch disable
-        pha                     ; Save A so we won't lose it!
+; Adding this killed a CMOS optimization...oh well.
+        pha                     ; Save A
         lda systemflags         ; Load system flags
         and #criticalflag       ; Check critical flag
         beq irqokay1            ; If unset, go ahead
         jmp irqhooks1           ; Otherwise skip task switch code
 irqokay1
-        pla
-
-!ifdef CONFIG_6502 {
 
 ; Perform the context save
 
@@ -30,25 +28,6 @@ irqokay1
         sta ctxpage+t1y,x       ; Store Y
         pla                     ; Pull A
         sta ctxpage+t1a,x       ; Store A
-}
-!ifdef CONFIG_65C02 {
-        phx                     ; Save X [Optimized]
-        ldx offset              ; Load the offset cache
-        sta ctxpage+t1a,x       ; Store A
-        tya
-        sta ctxpage+t1y,x       ; Store Y
-        pla                     ; Pull X
-        sta ctxpage+t1x,x       ; Store X
-}
-!ifdef CONFIG_65816EMU {
-        phx                     ; Save X [Optimized]
-        ldx offset              ; Load the offset cache
-        sta ctxpage+t1a,x       ; Store A
-        tya
-        sta ctxpage+t1y,x       ; Store Y
-        pla                     ; Pull X
-        sta ctxpage+t1x,x       ; Store X
-}
         pla                     ; Pull P (IRQ stored)
         sta ctxpage+t1p,x       ; Store P
         pla                     ; Pull PC low byte

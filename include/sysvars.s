@@ -48,6 +48,7 @@ simtermout      =$8010
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Commodore 64 VIC-II driver
 vic2textbase    =$0400
+vic2colorbase   =$d800
 vic2crsrX       =$06+gzpoffset
 vic2crsrY       =$07+gzpoffset
 vic2vector      =$08+gzpoffset
@@ -60,5 +61,8 @@ vic2vector2     =$09+gzpoffset
 ; Each byte serves eight Syslib routines with mutex functions.
 
 mutex1  =$04+gzpoffset          ; Mutex 1
-  getcharM     =%00000001       ; getchar mutex
-  putcharM     =%00000010       ; putchar mutex
+  getcharM      =%00000001      ; getchar mutex
+
+; multiply8 call variables
+mpybyte0        =$0a+gzpoffset
+mpybyte1        =$0b+gzpoffset

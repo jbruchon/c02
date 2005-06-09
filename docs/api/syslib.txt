@@ -51,3 +51,10 @@ USAGE:  Calling this will enable task switches.  This is the reverse of
         calling criticalsection.  If you disable interrupts in your program,
         you should enable them after calling this function to ensure proper
         system operation.
+
+NAME:  multiply8
+USES:  A X Y P
+USAGE:  Place the 8-bit unsigned number to be multiplied in Y, and place the
+        multiplier in X.  Call this routine.  The 16-bit result will be
+        placed in X/Y with X containing the high byte and Y containing the
+        low byte.
