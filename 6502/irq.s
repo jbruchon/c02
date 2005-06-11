@@ -23,25 +23,43 @@ irqokay1
 
         txa                     ; Push X into A to be saved
         ldx offset              ; Load the offset cache
-        sta ctxpage+t1x,x       ; Store X
+        sta ctxpage+taskx,x     ; Store X
         tya
-        sta ctxpage+t1y,x       ; Store Y
+        sta ctxpage+tasky,x     ; Store Y
         pla                     ; Pull A
-        sta ctxpage+t1a,x       ; Store A
+        sta ctxpage+taska,x     ; Store A
         pla                     ; Pull P (IRQ stored)
-        sta ctxpage+t1p,x       ; Store P
+        sta ctxpage+taskp,x     ; Store P
         pla                     ; Pull PC low byte
-        sta ctxpage+t1pc,x      ; Store PC low
+        sta ctxpage+taskpc,x    ; Store PC low
         pla                     ; Pull PC high
-        sta ctxpage+t1pc+1,x    ; Store PC high
+        sta ctxpage+taskpc+1,x  ; Store PC high
         stx temp                ; Save index
         tsx                     ; Get current SP
         txa                     ; Save SP elsewhere
         ldx temp                ; Restore index
-        sta ctxpage+t1sp,x      ; Save SP
+        sta ctxpage+tasksp,x    ; Save SP
+
+        lda zp0                 ; Get ZP0
+        sta ctxpage+taskzp,x    ; Save ZP0 in context
+        lda zp1
+        sta ctxpage+taskzp+1,x
+        lda zp2
+        sta ctxpage+taskzp+2,x
+        lda zp3
+        sta ctxpage+taskzp+3,x
+        lda zp4
+        sta ctxpage+taskzp+4,x
+        lda zp5
+        sta ctxpage+taskzp+5,x
+        lda zp6
+        sta ctxpage+taskzp+6,x
+        lda zp7
+        sta ctxpage+taskzp+7,x  ; Repeat until all ZP[0..7] are saved
+
         clc                     ; Carry bit can kill our addition...
         lda offset              ; Retrieve the offset cache
-        adc #$07                ; Increment offset cache by 7
+        adc #$10                ; Increment offset cache by 16
         bcc addokay             ; If the carry bit isn't set, OK.
         jmp init                ; Carry bit set = too many tasks
 addokay
@@ -61,7 +79,7 @@ irqtsk
 
 ; Switch stack pointer
         tax                     ; Load new offset index
-        lda ctxpage+t1sp,x      ; Load SP
+        lda ctxpage+tasksp,x    ; Load SP
         tax                     ; Prepare SP for change
         txs                     ; Change SP
 
@@ -80,16 +98,34 @@ irqokay2
 
 ; Load context and return from interrupt
         ldx offset              ; Restore clobbered offset index
-        lda ctxpage+t1pc+1,x    ; Load PC high
+
+        lda ctxpage+taskzp+0,x  ; Start ZP restoration
+        sta zp0
+        lda ctxpage+taskzp+1,x
+        sta zp1
+        lda ctxpage+taskzp+2,x
+        sta zp2
+        lda ctxpage+taskzp+3,x
+        sta zp3
+        lda ctxpage+taskzp+4,x
+        sta zp4
+        lda ctxpage+taskzp+5,x
+        sta zp5
+        lda ctxpage+taskzp+6,x
+        sta zp6
+        lda ctxpage+taskzp+7,x
+        sta zp7
+
+        lda ctxpage+taskpc+1,x  ; Load PC high
         pha                     ; Push PC high
-        lda ctxpage+t1pc,x      ; Load PC low
+        lda ctxpage+taskpc,x    ; Load PC low
         pha                     ; Push PC low
-        lda ctxpage+t1p,x       ; Load P
+        lda ctxpage+taskp,x     ; Load P
         pha                     ; Push P
-        lda ctxpage+t1a,x       ; Load A
+        lda ctxpage+taska,x     ; Load A
         pha                     ; Temporarily save A
-        ldy ctxpage+t1y,x       ; Load Y
-        lda ctxpage+t1x,x       ; Load X with A
+        ldy ctxpage+tasky,x     ; Load Y
+        lda ctxpage+taskx,x     ; Load X with A
         tax                     ; Move X's value from A into X
         pla                     ; Load A from temporary location
 

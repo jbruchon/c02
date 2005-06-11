@@ -10,23 +10,26 @@
 !ifdef CPU_6510 !set gzpoffset=$02
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
-; Context-switching offset declarations
+; Context storage offsets
 
-t1pc    =$00                    ; Task 1 PC (2 bytes)
-;       =$01
-t1a     =$02                    ; Task 1 A
-t1x     =$03                    ; Task 1 X
-t1y     =$04                    ; Task 1 Y
-t1p     =$05                    ; Task 1 status
-t1sp    =$06                    ; Task 1 SP
+taskpc          =$00            ; Task PC (2 bytes)
+;               =$01
+taska           =$02            ; Task A
+taskx           =$03            ; Task X
+tasky           =$04            ; Task Y
+taskp           =$05            ; Task proc status
+tasksp          =$06            ; Task SP
+taskstat        =$07            ; Task flags
+taskzp          =$08            ; Task zero page storage 0...7
+;               =$09...$15
 
-t1spi   =$ff                    ; Task 1 initial SP
+taskspi =$ff                    ; Task 1 initial SP
 
-task    =$00+gzpoffset          ; Kernel current task number storage
-temp    =$01+gzpoffset          ; Temporary kernel storage
-tasks   =$02+gzpoffset          ; Total running tasks quantity storage
-offset  =$03+gzpoffset          ; Offset cache storage
-systemflags=$04+gzpoffset       ; System core flags register
+task           =$00+gzpoffset   ; Kernel current task number storage
+temp           =$01+gzpoffset   ; Temporary kernel storage
+tasks          =$02+gzpoffset   ; Total running tasks quantity storage
+offset         =$03+gzpoffset   ; Offset cache storage
+systemflags    =$04+gzpoffset   ; System core flags register
 
 criticalflag   =%00000001       ; Critical Section (scheduler disable) flag
 
@@ -47,11 +50,11 @@ simtermout      =$8010
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Commodore 64 VIC-II driver
-vic2textbase    =$0400
-vic2colorbase   =$d800
+vic2text        =$0400
+vic2color       =$d800
 vic2crsrX       =$06+gzpoffset
 vic2crsrY       =$07+gzpoffset
-vic2vector      =$08+gzpoffset
+vic2vector1     =$08+gzpoffset
 vic2vector2     =$09+gzpoffset
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,9 +63,19 @@ vic2vector2     =$09+gzpoffset
 ; Library mutual exclusion flags
 ; Each byte serves eight Syslib routines with mutex functions.
 
-mutex1  =$04+gzpoffset          ; Mutex 1
-  getcharM      =%00000001      ; getchar mutex
+mutex1  =$0a+gzpoffset
+  getcharM      =%00000001
+  kbqueueM      =%00000010
 
-; multiply8 call variables
-mpybyte0        =$0a+gzpoffset
-mpybyte1        =$0b+gzpoffset
+;;;;;;;;;;;;;;;;;;;;;;;
+; User ZP locations
+; These are saved with all context switches
+
+zp0             =$f8
+zp1             =$f9
+zp2             =$fa
+zp3             =$fb
+zp4             =$fc
+zp5             =$fd
+zp6             =$fe
+zp7             =$ff

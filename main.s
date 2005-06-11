@@ -24,8 +24,8 @@
 !ifdef CONFIG_CUSTOM_INIT_TASK !set INIT_TASK_START=CORE_BASE
 
 ; Start address where each task begins execution.
-t1addr  =INIT_TASK_START        ; Task 1 start address
-tskcnt  =$01                    ; Number of initial tasks running
+taskaddr        =INIT_TASK_START        ; Task 1 start address
+tskcnt          =$01                    ; Number of initial tasks running
 
 !ifdef CONFIG_USE_INIT_CODE {
 RESVEC

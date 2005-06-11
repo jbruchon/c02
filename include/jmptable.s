@@ -4,10 +4,12 @@
 
 ; EVERYTHING that will be in the API jump table must be mentioned here.
 
-; -- Syslib API routines --
-
-; - Character I/O -
 
         jmp getchar
         jmp putchar
         jmp queuekey
+        jmp criticalsection
+        jmp uncriticalsection
+        jmp multiply8
+        jmp blockmovedown
+        jmp blockmoveup

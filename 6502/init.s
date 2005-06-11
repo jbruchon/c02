@@ -38,12 +38,12 @@ init
         lda #>irq
         sta $ffff
 }
-        ldx #t1spi              ; Task SP inits
+        ldx #taskspi              ; Task SP inits
         txs
-        lda #<t1addr            ; Task PC inits
-        sta ctxpage+t1pc
-        lda #>t1addr
-        sta ctxpage+t1pc+1
+        lda #<taskaddr            ; Task PC inits
+        sta ctxpage+taskpc
+        lda #>taskaddr
+        sta ctxpage+taskpc+1
 !ifdef CONFIG_6502 {
         lda #$00                ; Init offset cache to 0
         sta offset
@@ -58,9 +58,9 @@ init
         sta task
         lda #tskcnt+1           ; Get the maximum tasks to start running
         sta tasks               ; ...and set the kernel to execute them
-        lda #>t1addr            ; Push task 1 context to stack
-        pha                     ; so we can RTI, end up at t1addr
-        lda #<t1addr            ; and start executing task 1.
+        lda #>taskaddr            ; Push task 1 context to stack
+        pha                     ; so we can RTI, end up at taskaddr
+        lda #<taskaddr            ; and start executing task 1.
         pha
         lda #$20                ; Clear P, except for E bit (for 65816's)
         pha			; Push for task 1.

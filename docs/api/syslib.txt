@@ -12,27 +12,28 @@ Syslib's provided services and features include:
 
 * Number-based device I/O
 * Common key input queue service
-* Re-entrant code including mutex protection
+* Re-entrant code
 * Locked resources do not make programs sleep, allowing maximum control
   over potential deadlock or resource-hog problems by the programmer
+* Minimal locking on system calls to minimize latency
 
 SYSLIB-PROVIDED SYSTEM CALLS
 
 NAME:  getchar
-USES:  A X P
+USES:  A X
 USAGE:  Load X with the character device number to access.  If carry bit is
         clear, A contains the next character from the device.  If carry bit
         is set, A contains the device error number.
 
 NAME:  putchar
-USES:  A X Y P
+USES:  A X Y
 USAGE:  Load X with the character device number to access.  Load A with the
         character to send to the device.  If carry bit is clear, the write
         was successful.  If carry bit is set, A contains the device error
         number.
 
 NAME:  queuekey
-USES:  A X P
+USES:  A X
 USAGE:  Load A with the byte to add to the system's keyboard queue.  If the
         keyboard queue is full, carry will be set and A will contain the
         error code 3 (the only valid error code for this operation).  This
@@ -53,8 +54,35 @@ USAGE:  Calling this will enable task switches.  This is the reverse of
         system operation.
 
 NAME:  multiply8
-USES:  A X Y P
+USES:  A X Y ZP[0,1]
 USAGE:  Place the 8-bit unsigned number to be multiplied in Y, and place the
         multiplier in X.  Call this routine.  The 16-bit result will be
         placed in X/Y with X containing the high byte and Y containing the
         low byte.
+
+NAME:  blockmovedown
+USES:  A X Y ZP[0,1,2,3,4,5]
+USAGE:  Place the vector for the *destination* start of data in ZP0/ZP1.
+        Place the vector for start of data to be moved in ZP2/ZP3.  Place
+        the vector for the last byte of data to be moved in ZP4/ZP5 and then
+        issue this call.  The data in memory from start to end will be moved
+        down in memory so that it starts at the destination start address.
+        Take care that ZP2/ZP3 is ALWAYS LESS than ZP4/ZP5 or unpredictable
+        results may occur.
+
+NAME:  blockmoveup
+USES:  A X Y ZP[0,1,2,3,4,5]
+USAGE:  Place the vector for the destination *end* of data in ZP0/ZP1.
+        Place the vector for the last byte of data to be moved in ZP2/ZP3.
+        Place the vector for the start of data to be moved in ZP4/ZP5 and
+        issue this call.  The data in memory from start to end will be moved
+        up in memory so that it ends at the destination end address.
+        Take care that ZP2/ZP3 is ALWAYS MORE than ZP4/ZP5 or unpredictable
+        results may occur.
+
+NAME:  pagefill
+USES:  A Y P ZP[0,1,2]
+USAGE:  Set the vector at ZP0/ZP1 to the starting point.  Set ZP2 to the
+        number of bytes to fill, where $00 is one and $ff is 256 (one memory
+        page).  Set A to the byte you want the memory to be filled with.
+

@@ -3,3 +3,6 @@ C02 Operating System TODO List
 
 * Terminal types will be needed in the far future; for now, the specifics
   of each "dumb terminal" driver are hard-coded.
+
+* Merge block move calls into one common block move call that will determine
+  the proper direction and recalculate vectors as needed for the operation.

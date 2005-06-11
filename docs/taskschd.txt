@@ -23,6 +23,11 @@ $03 X register
 $04 Y register
 $05 Processor Status Byte
 $06 Stack Pointer
+$07 Process Status Flags
+$08 Zero page storage
+.
+.
+$0f Zero page storage
 
 An initial context for a new task must be as follows:
 
@@ -30,6 +35,8 @@ $00/$01 = PC where new task starts
 $02-$04 = Initial A/X/Y (Should not matter)
 $05     = $20 (All flags except 65816 emulation mode OFF)
 $06     = Stack pointer for new task
+$07     = $00 (for normal execution)
+$08     = Initial zero page space (should not matter)
 
 It is up to the loading program to decide an appropriate value for the stack
 pointer.  All tasks must have enough space on the stack for an IRQ to not

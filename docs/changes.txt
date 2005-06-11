@@ -111,7 +111,28 @@ flag (criticalflag) is set in systemflags.  The worst part is that some
 65C02 optimization is rendered pointless by this, but that's a small price
 to pay for critical section protection.
 
-06/07/2005   Jody Bruchon (jbruchon@nc.rr.com)
+06/09/2005   Jody Bruchon (jbruchon@nc.rr.com)
 
-Added an 8-bit multiply routine to Syslib, but it is not re-entrant.  I
-cannot decide how to make it re-entrant.
+Added an 8-bit multiply routine to Syslib and made it re-entrant by adding
+eight user zero-page locations to a context.  Added ZP storage to context
+switching system.  Re-verified building for C64 and Ric65C02, and tested
+on Ric65C02 with TESTTERM to ensure the system is working as expected.  ZP
+from $f8-$ff are currently allocated as process-specific ZP storage.  Fixed
+a bug where a zero-page instruction was used instead of an immediate one in
+the getchar mutex, and removed unnecessary eor #$ff from mutex unset routines
+in favor of using "lda #255-mutex" instead of "lda #mutex / eor #$ff" to
+save a few bytes and cycles.
+
+06/11/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Finally debugged and inserted block move up/down routines in Syslib.  They
+are generic block move routines that are similar to MVN/MVP on a 65816 and
+MVN/MVP will most likely be the first optimization I make for 65816-based
+platforms.  The "block move down" was needed for the VIC-II driver (and
+probably others in the future) to scroll the screen down by one line.  Also
+some software such as a text editor may find it useful.  Check API docs for
+Syslib for details on this call's usage.  Added a pagefill call that will
+take a starting vector, byte count, and fill byte, and fill up to 256 bytes
+of contiguous memory locations with the fill byte.  It appears to be very
+fast; I may implement page move routines for speed optimization in such
+things as the VIC-II driver.
