@@ -54,16 +54,22 @@ RESVEC
 
 ; System library
 
+!ifdef CONFIG_ADV_NO_SYSLIB {} else {
+
 !ifdef CONFIG_6502 !src "6502/SYSLIB.S"
 !ifdef CONFIG_65C02 !src "6502/SYSLIB.S"
 !ifdef CONFIG_65816EMU !src "65816EMU/SYSLIB.S"
 !ifdef CONFIG_65816 !src "65816/SYSLIB.S"
 
+}
+
 ; The jump table loaded here is where system calls take place.
 
 !ifdef JMPTABLE_BASE {
 *=JMPTABLE_BASE
-!src "INCLUDE/JMPTABLE.S"
+!ifdef CONFIG_6502 !src "6502/JMPTABLE.S"
+!ifdef CONFIG_65C02 !src "6502/JMPTABLE.S"
+!ifdef CONFIG_65816EMU !src "65816EMU/JMPTABLE.S"
 }
 
 ; If your system has C02 in a ROM or boots into the init sequence by RESET,

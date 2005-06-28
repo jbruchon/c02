@@ -135,4 +135,17 @@ Syslib for details on this call's usage.  Added a pagefill call that will
 take a starting vector, byte count, and fill byte, and fill up to 256 bytes
 of contiguous memory locations with the fill byte.  It appears to be very
 fast; I may implement page move routines for speed optimization in such
-things as the VIC-II driver.
+things as the VIC-II driver.  Changed "mutex" to "lock" throughout the
+system--it turns out a mutex is basically a complicated lock whereas a
+"semaphore" or "lock" is just a flag that locks something.  Whatever...
+
+06/13/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Optimized multiply8 even further by eliminating redundancy and removing a bug
+that caused interrupts to be locked/unlocked despite the routine now being
+re-entrant.  Saved about four bytes and reversed ZP usage so the result of
+the multiply can be used as a vector when the operation completes.  This will
+aid in some indirect vector calculations.  And during the optimization, I
+tested it outside of Syslib and it failed.  The loop counter was set to 7 and
+needed to be 8.  Oops.  I get the stupid award for not testing it properly.
+

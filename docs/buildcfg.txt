@@ -6,6 +6,30 @@ The file BUILD.CFG contains parameters that determine how C02's kernel
 is to be constructed.  Parameters that are commented with a semicolon or
 are not defined will be ignored during the build process.
 
+
+TABLE OF CONTENTS
+=-=-=-=-=-=-=-=-=
+
+Pre-padding
+  Option allowing you to add empty bytes to the beginning of the core image
+
+Standard Architectures
+  Just using one of these options will auto-build for the selected system.
+
+CPU Selection
+  Options to select which CPU to build for when using a custom architecture
+
+Architecture Definition
+  Building for non-supported systems or modified supported systems
+
+Device Drivers
+  Selecting what drivers you need for defined architectures
+
+Advanced Options
+  Things that only a select few will use.  Use with extreme caution.
+
+=-=-=-=-=-=-=-=-=
+
 Pre-padding
 -----------
 
@@ -13,8 +37,46 @@ CONFIG_PREPEND=$xxxx
 Prepends $xxxx bytes of $00 to the final output image.
 
 
+Standard Architectures
+----------------------
+
+It is recommended that you use one of these options if you intend to build
+for any of the systems listed below.  These options will automatically
+set all required options for proper building for that system.  Note that
+you can still add drivers and advanced options that are not part of the
+architecture if you like.  Building this way is virtually guaranteed to
+work "out of the box."  But you never really know, do you? :)
+
+CONFIG_ARCH_C64=1
+Define this if you're using a Commodore 64.
+
+CONFIG_ARCH_VIC20=1
+Define this if you're using a VIC-20.
+[BROKEN]
+
+CONFIG_ARCH_C64SCPU=1
+If you have a Commodore 64 with a SuperCPU, define this.
+65816 system extensions will be built in automatically.
+[BROKEN]
+
+CONFIG_ARCH_NES=1
+If you want to build C02 for execution on the Nintendo Entertainment
+System, define this.
+[BROKEN]
+
+CONFIG_ARCH_RIC65C02=1
+If you would like to build a ROM image for use on the 65C02 single-board
+computer simulator written by Daryl Rictor, set this.  You will need to
+!src your custom task(s) and data in through CUSTOM.S and be sure that
+the first task you include is your initial task.
+
+
 CPU Selection
 -------------
+
+If you want to use a generic build to try and get C02 working on a system
+that doesn't have an auto-configuration option, you must first pick the
+CPU you intend to use.
 
 CONFIG_6502=1
 Define this if you are using a 6502-compatible CPU such as the 6502 or
@@ -61,22 +123,6 @@ CONFIG_CUSTOM_INIT_TASK=1
 This prefixes "custom.s" to the kernel initialization and core code.
 Undefine CONFIG_ARCH_GENERIC_INIT and RESVEC if you use this.
 
-CONFIG_ARCH_C64=1
-Define this if you're using a Commodore 64.
-
-CONFIG_ARCH_VIC20=1
-Define this if you're using a VIC-20.
-[BROKEN]
-
-CONFIG_ARCH_C64SCPU=1
-If you have a Commodore 64 with a SuperCPU, define this.
-[BROKEN]
-
-CONFIG_ARCH_NES=1
-If you want to build C02 for execution on the Nintendo Entertainment
-System, define this.
-[BROKEN]
-
 CONFIG_NES_HEADER=1
 Define this to prefix an iNES-compatible header to the C02 code base
 for use on a NES emulator.
@@ -107,6 +153,7 @@ builds, but most supported systems have this pre-defined.
 
 Device Drivers
 --------------
+
 YOU MUST NOT define more than one console output driver at a time.  I/O
 port drivers don't count (such as 6551).
 

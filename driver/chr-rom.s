@@ -8,10 +8,9 @@
 
 !to "chr-rom.o",plain
 *= $0000
-
+!fill $0200,$00
 ; The characters 0-31 are blank to make ASCII mapping easier.
 
-*= $0200
 !08 $00,$00,$00,$00,$00,$00,$00,$00,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 !08 $18,$18,$18,$18,$00,$00,$18,$00,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 !08 $66,$66,$66,$00,$00,$00,$00,$00,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff

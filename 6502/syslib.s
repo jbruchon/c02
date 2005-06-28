@@ -9,16 +9,16 @@ syslibstart
 ; getchar will attempt to retrieve a character from the specified input.
 ; *SYSCALL*
 getchar
-; mutex
-        lda mutex1              ; Load mutex byte
-        and #getcharM           ; Check getchar mutex bit
-        beq getcharMok          ; If zero, mutex unset so continue
-        jmp resourcelocked      ; Set mutex = resource locked
-getcharMok
-        lda #getcharM           ; Load the bit for the getchar mutex
-        ora mutex1              ; Set getchar mutex bit in mutex byte
-        sta mutex1              ; Store new mutex byte
-; endmutex
+; lock
+        lda lock1               ; Load lock byte
+        and #getcharL           ; Check getchar lock bit
+        beq getcharLok          ; If zero, lock unset so continue
+        jmp resourcelocked      ; Set lock = resource locked
+getcharLok
+        lda #getcharL           ; Load the bit for the getchar lock
+        ora lock1               ; Set getchar lock bit in lock byte
+        sta lock1               ; Store new lock byte
+; endlock
         cpx #$00                ; $00 = console
         beq consoleinput
         jmp devnumfailure       ; Failed compares, put error
@@ -27,11 +27,11 @@ consoleinput
         jsr consoleget          ; Get char from console
 getcharexit
         tax                     ; Save A
-; mutex
-        lda #255-getcharM       ; Load inverted mutex bit mask
-        and mutex1              ; Clear mutex bit in mutex byte
-        sta mutex1              ; Store mutex byte
-; endmutex
+; lock
+        lda #255-getcharL       ; Load inverted lock bit mask
+        and lock1               ; Clear lock bit in lock byte
+        sta lock1               ; Store lock byte
+; endlock
         txa                     ; retrieve A
         rts
 ; consoleget does queue retrieval and pointer update
@@ -77,27 +77,27 @@ putcharworked
 ; queuekey adds a byte to the keyboard queue and updates queue pointers
 ; *SYSCALL*
 queuekey
-; mutex
-        lda mutex1              ; Load mutex
-        and #kbqueueM           ; Check mutex
-        beq kbqueueMok          ; If zero, continue
-        jmp resourcelocked      ; Set mutex = resource locked
-kbqueueMok
-        lda #kbqueueM           ; Load mutex
-        ora mutex1              ; Set mutex bit
-        sta mutex1              ; Store new mutex byte
-; endmutex
+; lock
+        lda lock1               ; Load lock
+        and #kbqueueL           ; Check lock
+        beq kbqueueLok          ; If zero, continue
+        jmp resourcelocked      ; Set lock = resource locked
+kbqueueLok
+        lda #kbqueueL           ; Load lock
+        ora lock1               ; Set lock bit
+        sta lock1               ; Store new lock byte
+; endlock
         ldx kbqueue             ; Get current queue pointer
         inx
         cpx #kbqueuelen         ; Check against max length
         beq queuekeyfull        ; If full, drop key
         sta kbqueue,x           ; Store key
         stx kbqueue             ; Store pointer
-; mutex
-        lda #255-kbqueueM       ; Get mutex byte
-        and mutex1              ; Clear mutex bit in mutex byte
-        sta mutex1              ; Store mutex byte
-; endmutex
+; lock
+        lda #255-kbqueueL       ; Get lock byte
+        and lock1               ; Clear lock bit in lock byte
+        sta lock1               ; Store lock byte
+; endlock
         clc
         rts
 queuekeyfull
@@ -106,6 +106,7 @@ queuekeyfull
 ; (un)criticalsection enables/disables task switching for protection of
 ; a program's critical section.
 ; *SYSCALL*
+!ifdef CONFIG_ADV_NO_CRITICAL {} else {
 criticalsection
         lda #criticalflag       ; Get bit mask
         ora systemflags         ; Disable scheduler
@@ -118,19 +119,18 @@ uncriticalsection
         and systemflags         ; Apply mask to flags
         sta systemflags         ; Store new flags
         rts
+}
 
 ; multiply8 provides an 8-bit multiply
 ; *SYSCALL*
 multiply8
-        sei                     ; Do not interrupt after this point
-        sty zp1                 ; Store multiplicand
 !ifdef CONFIG_6502 {
         lda #$00
         sta zp0                 ; Init result
 } else {
         stz zp0                 ; Init result [Optimized]
 }
-        ldy #$07                ; Init multiplier loop
+        ldy #$08                ; Init multiplier loop
 multiply8loop
         asl zp0                 ; Shift low byte left
         rol zp1                 ; Shift high byte left
@@ -145,9 +145,6 @@ multiply8loop
 multiply8noc
         dey                     ; Decrement counter
         bne multiply8loop       ; If not zero, do again
-        ldy zp0                 ; Return low byte in Y
-        ldx zp1                 ; Return high byte in X
-        cli                     ; Unlock interrupts
         rts                     ; Return to program
 
 ; blockmove(down/up) move memory down or up
@@ -214,6 +211,46 @@ pagefillloop
         iny                     ; If not, move to next byte
         bne pagefillloop        ; and loop until done
 pagefilldone
+        rts
+
+; *SYSCALL*
+pagemove
+        lda zp3                 ; Get dest. high byte
+        cmp zp1                 ; Check against start high
+        bmi pagemovedown        ; If dest below start, move down
+        beq pagemovelows        ; If equal, check low bytes to decide
+        bne pagemoveup          ; If greater, move up
+pagemovelows
+        lda zp2                 ; Get dest. low
+        cmp zp0                 ; Check against start low
+        bmi pagemovedown        ; If less, move down
+        bne pagemoveup          ; If not equal (greater), move up
+        rts                     ; Otherwise, start=dest so ignore call!
+
+pagemovedown
+        ldy #$00                ; Init index
+        ldx zp4                 ; Init counter
+pagemovedownloop
+        lda (zp0),y             ; Load data byte
+        sta (zp2),y             ; Copy data byte
+        cpx #$00                ; Is counter at zero?
+        beq pagemovedown1       ; Yes = done
+        iny                     ; Increment index
+        dex                     ; Decrement counter
+        jmp pagemovedownloop    ; Loop until done
+pagemovedown1
+        rts
+
+pagemoveup
+        ldy zp4                 ; Init index/counter
+pagemoveuploop
+        lda (zp0),y             ; Load data byte
+        sta (zp2),y             ; Save data byte
+        cpy #$00                ; Is counter at zero?
+        beq pagemoveup1         ; Yes = done
+        dey                     ; Decrement index/counter
+        jmp pagemoveuploop      ; Loop until done
+pagemoveup1
         rts
 
 ; ***ERROR CODES***

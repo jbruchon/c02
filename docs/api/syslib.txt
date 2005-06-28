@@ -55,10 +55,10 @@ USAGE:  Calling this will enable task switches.  This is the reverse of
 
 NAME:  multiply8
 USES:  A X Y ZP[0,1]
-USAGE:  Place the 8-bit unsigned number to be multiplied in Y, and place the
+USAGE:  Place the 8-bit unsigned number to be multiplied in ZP1, place the
         multiplier in X.  Call this routine.  The 16-bit result will be
-        placed in X/Y with X containing the high byte and Y containing the
-        low byte.
+        placed in ZP0/ZP1, with ZP1 being the high byte.  This ordering is
+        used so that the result can be used as a vector without changes.
 
 NAME:  blockmovedown
 USES:  A X Y ZP[0,1,2,3,4,5]
@@ -81,8 +81,14 @@ USAGE:  Place the vector for the destination *end* of data in ZP0/ZP1.
         results may occur.
 
 NAME:  pagefill
-USES:  A Y P ZP[0,1,2]
+USES:  A Y ZP[0,1,2]
 USAGE:  Set the vector at ZP0/ZP1 to the starting point.  Set ZP2 to the
         number of bytes to fill, where $00 is one and $ff is 256 (one memory
         page).  Set A to the byte you want the memory to be filled with.
 
+NAME:  pagemove
+USES:  A X Y ZP[0,1,2,3,4]
+USAGE:  Set the vector at ZP0/ZP1 to start of data.  Set ZP2/ZP3 to new
+        start of data.  Set ZP4 to the number of bytes to move, where $00 is
+        one and $ff is 256 (one memory page).  This routine is faster than a
+        block move but cannot move more than 256 bytes of data at a time.

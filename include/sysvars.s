@@ -60,12 +60,12 @@ vic2vector2     =$09+gzpoffset
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Syslib global variables
 
-; Library mutual exclusion flags
-; Each byte serves eight Syslib routines with mutex functions.
+; Library lock flags
+; Each byte serves eight Syslib routines with locking functions.
 
-mutex1  =$0a+gzpoffset
-  getcharM      =%00000001
-  kbqueueM      =%00000010
+lock1  =$0a+gzpoffset
+  getcharL      =%00000001
+  kbqueueL      =%00000010
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; User ZP locations

@@ -10,12 +10,12 @@ init
         lda #$00
         sta systemflags         ; Clear all system flags
         sta kbqueue             ; Clear keyboard queue pointers
-        sta mutex1              ; Clear Syslib mutex
+        sta lock1               ; Clear Syslib lock flags
 }
 !ifdef CONFIG_65C02 {
         stz systemflags         ; Same as above.
         stz kbqueue
-        stz mutex1
+        stz lock1
 }
 
 !src "DRIVER/DRVINIT.S"         ; Per-driver initialization code

@@ -1,8 +1,18 @@
 C02 Operating System TODO List
 ------------------------------
 
+Some of this might be more of a wish list, really.
+
 * Terminal types will be needed in the far future; for now, the specifics
   of each "dumb terminal" driver are hard-coded.
 
 * Merge block move calls into one common block move call that will determine
   the proper direction and recalculate vectors as needed for the operation.
+
+* Finish up VIC-II driver.
+
+* Create options that allow modularization of Syslib and the kernel; also,
+  make alternate kernel core components (i.e. a memory-saving scheduler
+  and a normal scheduler) that will help when building for extremely low
+  memory systems or allow the builder to make more choices about such things
+  as size/space tradeoffs.

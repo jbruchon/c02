@@ -10,6 +10,7 @@
 
 irq
 
+!ifdef CONFIG_ADV_NO_CRITICAL {} else {
 ; Check flags for task switch disable
 ; Adding this killed a CMOS optimization...oh well.
         pha                     ; Save A
@@ -18,6 +19,7 @@ irq
         beq irqokay1            ; If unset, go ahead
         jmp irqhooks1           ; Otherwise skip task switch code
 irqokay1
+}
 
 ; Perform the context save
 
@@ -40,6 +42,7 @@ irqokay1
         ldx temp                ; Restore index
         sta ctxpage+tasksp,x    ; Save SP
 
+!ifdef CONFIG_ADV_NO_ZPCONTEXT {} else {
         lda zp0                 ; Get ZP0
         sta ctxpage+taskzp,x    ; Save ZP0 in context
         lda zp1
@@ -56,6 +59,7 @@ irqokay1
         sta ctxpage+taskzp+6,x
         lda zp7
         sta ctxpage+taskzp+7,x  ; Repeat until all ZP[0..7] are saved
+}
 
         clc                     ; Carry bit can kill our addition...
         lda offset              ; Retrieve the offset cache
@@ -88,11 +92,13 @@ irqtsk
 irqhooks1
 !src "include/irqhooks.s"
 
+!ifdef CONFIG_ADV_NO_CRITICAL {} else {
 ; Check flags for task switch disable
         lda systemflags         ; Load system flags
         and #criticalflag       ; Check critical flag
         beq irqokay2            ; If unset, go ahead
         rti                     ; Otherwise return to program
+}
 
 irqokay2
 
