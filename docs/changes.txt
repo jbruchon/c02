@@ -149,3 +149,6 @@ aid in some indirect vector calculations.  And during the optimization, I
 tested it outside of Syslib and it failed.  The loop counter was set to 7 and
 needed to be 8.  Oops.  I get the stupid award for not testing it properly.
 
+06/28/2005   Jody Bruchon (jbruchon@nc.rr.com)
+
+Cleaned up documentation, added items to TODO list.

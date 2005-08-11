@@ -10,6 +10,6 @@ beginning
         jsr getchar             ; Get character from device 0
         cmp #$00                ; Is char null?
         beq beginning           ; Yes: try again
-        ldx #$00                ; No: select console again
+        ldx #$00                ; No: select console again 
         jsr putchar             ; Echo char back to console
         jmp beginning           ; Loop forever...

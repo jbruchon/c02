@@ -16,3 +16,10 @@ Some of this might be more of a wish list, really.
   and a normal scheduler) that will help when building for extremely low
   memory systems or allow the builder to make more choices about such things
   as size/space tradeoffs.
+
+* Implement a proper NES PPU driver and NMI handler.
+
+* Banked memory and 65816 extension management and handling would be great.
+  Banking data will become part of a task context, as will ZP and stack
+  page data.  This will take advantage of advanced features offered by these
+  enhanced 6502 platforms.

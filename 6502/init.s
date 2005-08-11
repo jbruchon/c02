@@ -15,7 +15,7 @@ init
 !ifdef CONFIG_65C02 {
         stz systemflags         ; Same as above.
         stz kbqueue
-        stz lock1
+        stz lock1 
 }
 
 !src "DRIVER/DRVINIT.S"         ; Per-driver initialization code
