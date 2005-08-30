@@ -9,7 +9,17 @@ Some of this might be more of a wish list, really.
 * Merge block move calls into one common block move call that will determine
   the proper direction and recalculate vectors as needed for the operation.
 
+* Block moves currently increment the vector instead of using indexing.  This
+  makes block moves slower, but it works for now, so it's a low priority to
+  change it.
+
 * Finish up VIC-II driver.
+
+* Create a 1541/71/81 asynchronous fast-load disk driver.
+
+* Need to build my own development tools.  I don't like the O65 format.  I
+  need dynamic linking in the kernel, and once that is done, I may be able
+  to modularize the drivers.  It's required to load programs too.
 
 * Create options that allow modularization of Syslib and the kernel; also,
   make alternate kernel core components (i.e. a memory-saving scheduler
@@ -17,7 +27,8 @@ Some of this might be more of a wish list, really.
   memory systems or allow the builder to make more choices about such things
   as size/space tradeoffs.
 
-* Implement a proper NES PPU driver and NMI handler.
+* Implement a proper NES PPU driver and NMI handler.  Perhaps a page could
+  be reserved as a PPU update FIFO and then dumped on NMI.  Needs work.
 
 * Banked memory and 65816 extension management and handling would be great.
   Banking data will become part of a task context, as will ZP and stack

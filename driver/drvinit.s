@@ -8,6 +8,13 @@
         lda $dd0d                       ; CIA 2
 }
 
+; Initialize VIC-II
+!ifdef CONFIG_VIC_II {
+        lda #$00
+        sta vic2crsrX
+        sta vic2crsrY
+}
+
 ; Initialize CIA1 for a C64 keyboard
 
 !ifdef CONFIG_INPUT_C64_KEY {

@@ -12,6 +12,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Context storage offsets
 
+; This must be set to the total context size.
+ctxsize=$0f
+
 taskpc          =$00            ; Task PC (2 bytes)
 ;               =$01
 taska           =$02            ; Task A
@@ -19,18 +22,22 @@ taskx           =$03            ; Task X
 tasky           =$04            ; Task Y
 taskp           =$05            ; Task proc status
 tasksp          =$06            ; Task SP
-taskstat        =$07            ; Task flags
-taskzp          =$08            ; Task zero page storage 0...7
-;               =$09...$15
+taskzp          =$07            ; Task zero page storage 0...7
+;               =$08...$14        Same as above
 
-taskspi =$ff                    ; Task 1 initial SP
 
+;;;;;;;;;;;;;;;;;;;;;;;;
+; Initial task stack pointer
+taskspi =$ff
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; Basic kernel function storage
 task           =$00+gzpoffset   ; Kernel current task number storage
 temp           =$01+gzpoffset   ; Temporary kernel storage
 tasks          =$02+gzpoffset   ; Total running tasks quantity storage
 offset         =$03+gzpoffset   ; Offset cache storage
 systemflags    =$04+gzpoffset   ; System core flags register
-
+; systemflags flag definitions
 criticalflag   =%00000001       ; Critical Section (scheduler disable) flag
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,11 +58,28 @@ simtermout      =$8010
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Commodore 64 VIC-II driver
 vic2text        =$0400
+vic2textll      =vic2text+$3c0
 vic2color       =$d800
 vic2crsrX       =$06+gzpoffset
 vic2crsrY       =$07+gzpoffset
 vic2vector1     =$08+gzpoffset
 vic2vector2     =$09+gzpoffset
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Malloc/Mfree storage
+mmtemp0         =$0a+gzpoffset
+mmtemp1         =$0b+gzpoffset
+mmfreepagecnt   =$0c+gzpoffset
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Debug area defines
+debugmessage    =$d0 ;(vector)
+debuga          =$d2
+debugx          =$d3
+debugy          =$d4
+debugp          =$d5
+debugtmp0       =$d6
+debugtmp1       =$d7
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Syslib global variables
@@ -79,3 +103,16 @@ zp4             =$fc
 zp5             =$fd
 zp6             =$fe
 zp7             =$ff
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+; Process information table
+
+pitsize         =$0f
+
+pitpid          =$00
+pitstate        =$01
+pitpages        =$02
+pitimport       =$03
+pitexport       =$05
+pitbank         =$07
+pitname         =$08

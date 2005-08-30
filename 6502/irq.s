@@ -10,19 +10,10 @@
 
 irq
 
-!ifdef CONFIG_ADV_NO_CRITICAL {} else {
-; Check flags for task switch disable
-; Adding this killed a CMOS optimization...oh well.
-        pha                     ; Save A
-        lda systemflags         ; Load system flags
-        and #criticalflag       ; Check critical flag
-        beq irqokay1            ; If unset, go ahead
-        jmp irqhooks1           ; Otherwise skip task switch code
-irqokay1
-}
-
 ; Perform the context save
 
+!ifdef CONFIG_6502 {
+        pha                     ; Save A so we won't lose it!
         txa                     ; Push X into A to be saved
         ldx offset              ; Load the offset cache
         sta ctxpage+taskx,x     ; Store X
@@ -30,6 +21,25 @@ irqokay1
         sta ctxpage+tasky,x     ; Store Y
         pla                     ; Pull A
         sta ctxpage+taska,x     ; Store A
+}
+!ifdef CONFIG_65C02 {
+        phx                     ; Save X [Optimized]
+        ldx offset              ; Load the offset cache
+        sta ctxpage+taska,x     ; Store A
+        tya
+        sta ctxpage+tasky,x     ; Store Y
+        pla                     ; Pull X
+        sta ctxpage+taskx,x     ; Store X
+}
+!ifdef CONFIG_65816EMU {
+        phx                     ; Save X [Optimized]
+        ldx offset              ; Load the offset cache
+        sta ctxpage+taska,x     ; Store A
+        tya
+        sta ctxpage+tasky,x     ; Store Y
+        pla                     ; Pull X
+        sta ctxpage+taskx,x     ; Store X
+}
         pla                     ; Pull P (IRQ stored)
         sta ctxpage+taskp,x     ; Store P
         pla                     ; Pull PC low byte
@@ -61,9 +71,14 @@ irqokay1
         sta ctxpage+taskzp+7,x  ; Repeat until all ZP[0..7] are saved
 }
 
+!ifdef CONFIG_ADV_NO_CRITICAL {} else {
+        lda systemflags         ; Load system flags
+        and #criticalflag       ; Check critical flag
+        beq irqnoinc            ; If unset, go ahead
+}
         clc                     ; Carry bit can kill our addition...
         lda offset              ; Retrieve the offset cache
-        adc #$10                ; Increment offset cache by 16
+        adc #ctxsize            ; Increment offset cache by context size
         bcc addokay             ; If the carry bit isn't set, OK.
         jmp init                ; Carry bit set = too many tasks
 addokay
@@ -81,6 +96,7 @@ irqtsk
         sta offset              ; Save offset cache
         stx task                ; Save task number
 
+irqnoinc
 ; Switch stack pointer
         tax                     ; Load new offset index
         lda ctxpage+tasksp,x    ; Load SP
@@ -91,16 +107,6 @@ irqtsk
 
 irqhooks1
 !src "include/irqhooks.s"
-
-!ifdef CONFIG_ADV_NO_CRITICAL {} else {
-; Check flags for task switch disable
-        lda systemflags         ; Load system flags
-        and #criticalflag       ; Check critical flag
-        beq irqokay2            ; If unset, go ahead
-        rti                     ; Otherwise return to program
-}
-
-irqokay2
 
 ; Load context and return from interrupt
         ldx offset              ; Restore clobbered offset index

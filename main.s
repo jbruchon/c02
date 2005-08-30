@@ -20,8 +20,9 @@
 *=CORE_BASE
 
 ; Custom hard-coded initial task inclusion/remapping
+        jmp init                ; Jump point
 !ifdef CONFIG_CUSTOM_INIT_TASK !src "CUSTOM.S"
-!ifdef CONFIG_CUSTOM_INIT_TASK !set INIT_TASK_START=CORE_BASE
+!ifdef CONFIG_CUSTOM_INIT_TASK !set INIT_TASK_START=CORE_BASE+3
 
 ; Start address where each task begins execution.
 taskaddr        =INIT_TASK_START        ; Task 1 start address

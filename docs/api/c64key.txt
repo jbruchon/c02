@@ -1,3 +1,13 @@
+This document is deprecated and will be removed.
+It is useless to you at the moment.
+When the enhanced C64 keyboard driver interface is made, this may
+become useful again, but until then, this is all theoretical...
+--Jody
+
+
+
+
+
                       C02 OS Driver/API Documentation
                         C64 Keyboard Driver "c64key"
                       ===============================

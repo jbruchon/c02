@@ -13,8 +13,11 @@ TABLE OF CONTENTS
 Pre-padding
   Option allowing you to add empty bytes to the beginning of the core image
 
+Debugging
+  Option that activates debugging messages and facilities in the kernel
+
 Standard Architectures
-  Just using one of these options will auto-build for the selected system.
+  Just using one of these options will auto-build for the selected system
 
 CPU Selection
   Options to select which CPU to build for when using a custom architecture
@@ -26,7 +29,7 @@ Device Drivers
   Selecting what drivers you need for defined architectures
 
 Advanced Options
-  Things that only a select few will use.  Use with extreme caution.
+  Things that only a select few will use.  Use with extreme caution!
 
 =-=-=-=-=-=-=-=-=
 
@@ -35,6 +38,17 @@ Pre-padding
 
 CONFIG_PREPEND=$xxxx
 Prepends $xxxx bytes of $00 to the final output image.
+
+
+Debugging
+---------
+
+If you're hammering at really nasty program problems, try this out!
+If you're not, this will slow you down and get annoying very fast.
+
+CONFIG_DEBUG=1
+Define this to activate debugging messages and facilities such as
+"debugprint" and "kernelpanic" on your kernel.
 
 
 Standard Architectures
@@ -119,6 +133,12 @@ CONFIG_ARCH_GENERIC_CORE=$xxxx
 Set this option to the starting address of the kernel core only if you are
 building with CONFIG_ARCH_GENERIC
 
+CONFIG_ARCH_GENERIC_CONTEXT_PAGE=$xxxx
+Sets "ctxpage" which is defined below.
+
+CONFIG_ARCH_GENERIC_PID_PAGE=$xxxx
+Sets "pidpage" which contains process information such as the process ID
+
 CONFIG_CUSTOM_INIT_TASK=1
 This prefixes "custom.s" to the kernel initialization and core code.
 Undefine CONFIG_ARCH_GENERIC_INIT and RESVEC if you use this.
@@ -202,3 +222,25 @@ If you have a Nintendo Entertainment System, this option activates the
 PPU video driver.  Unless you're doing really funky stuff to the NES that
 doesn't require video, you'll want this! [Console]
 [BROKEN]
+
+
+Advanced Options
+----------------
+
+These options are seldom used but are provided for those who REALLY
+know what they are doing.  Use caution with these!
+
+CONFIG_ADV_NO_CRITICAL=1
+Critical section support disable (also removes support code from IRQ)
+to cut out critical section locking from SYSLIB.
+
+CONFIG_ADV_NO_ZPCONTEXT=1
+Remove 8-byte user zero page space from context switcher.  You might as
+well dump Syslib if you do this, as it requires up to six of the eight
+bytes to do work or pass data.
+
+CONFIG_ADV_NO_SYSLIB=1
+Remove Syslib from build entirely.  Setting CONFIG_ADV_NO_CRITICAL
+above will remove task switch disabling functions if not needed outside
+of Syslib.  Many drivers require some of the functions in Syslib to operate!
+

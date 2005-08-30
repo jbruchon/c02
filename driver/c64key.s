@@ -73,7 +73,7 @@ c64kdec2
         sec                     ; Set carry for rotation
 c64kdec3
         rol                     ; Rotate accumulator
-        bcc c64kdec4            ; If C clear , key hit, so finish
+        bcc c64kdec4            ; If C clear, key hit, so finish
         iny                     ; Increment pointer
         bcs c64kdec3            ; Skip back to rotation
 c64kdec4

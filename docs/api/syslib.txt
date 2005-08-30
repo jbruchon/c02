@@ -19,6 +19,9 @@ Syslib's provided services and features include:
 
 SYSLIB-PROVIDED SYSTEM CALLS
 
+CLASS = CHAR, character-based I/O
+---------------------------------
+
 NAME:  getchar
 USES:  A X
 USAGE:  Load X with the character device number to access.  If carry bit is
@@ -32,6 +35,13 @@ USAGE:  Load X with the character device number to access.  Load A with the
         was successful.  If carry bit is set, A contains the device error
         number.
 
+NAME:  putstring
+USES:  A X Y ZP[0,1,2,3]
+USAGE:  Load X with the character device number to access.  Set the vector
+        at ZP0/1 to the location of the string to print.  The string must
+        be terminated with a null ($00) character.  This routine is a
+        wrapper for putchar and returns any error putchar returns to it.
+
 NAME:  queuekey
 USES:  A X
 USAGE:  Load A with the byte to add to the system's keyboard queue.  If the
@@ -40,18 +50,24 @@ USAGE:  Load A with the byte to add to the system's keyboard queue.  If the
         call is used primarily by keyboard drivers, but is useful if you
         want to force a key into the keyboard queue for some reason.
 
+CLASS = CRITICAL, critical section management
+---------------------------------------------
+
 NAME:  criticalsection
-USES:  A
+USES:  (none)
 USAGE:  Calling this will disable task switches but leaves IRQ/NMI servicing
         hooks functional.  If you must disable IRQs, do so very sparingly and
         before you call this function.
 
 NAME:  uncriticalsection
-USES:  A
+USES:  (none)
 USAGE:  Calling this will enable task switches.  This is the reverse of
         calling criticalsection.  If you disable interrupts in your program,
         you should enable them after calling this function to ensure proper
         system operation.
+
+CLASS = MATH, common math functions
+-----------------------------------
 
 NAME:  multiply8
 USES:  A X Y ZP[0,1]
@@ -59,6 +75,9 @@ USAGE:  Place the 8-bit unsigned number to be multiplied in ZP1, place the
         multiplier in X.  Call this routine.  The 16-bit result will be
         placed in ZP0/ZP1, with ZP1 being the high byte.  This ordering is
         used so that the result can be used as a vector without changes.
+
+CLASS = MEMORY, memory manipulation routines
+--------------------------------------------
 
 NAME:  blockmovedown
 USES:  A X Y ZP[0,1,2,3,4,5]
@@ -92,3 +111,39 @@ USAGE:  Set the vector at ZP0/ZP1 to start of data.  Set ZP2/ZP3 to new
         start of data.  Set ZP4 to the number of bytes to move, where $00 is
         one and $ff is 256 (one memory page).  This routine is faster than a
         block move but cannot move more than 256 bytes of data at a time.
+
+CLASS = MM, memory management calls
+-----------------------------------
+
+NAME:  malloc
+USES:  A X Y
+USAGE:  Set A to the number of 256-byte memory pages desired and call.  If
+        the allocation is successful, carry will be clear, A will contain
+        the starting page of the memory block, and X will contain the
+        number of pages allocated (same as requested).
+
+NAME:  mfree
+USES:  A X Y
+USAGE:  Set A to the start page of the block, set X to the number of pages
+        to free.  The PID that allocated those pages will be checked against
+        the current PID, and only if they are equal will the blocks be freed.
+        If carry is clear, all is well.
+
+CLASS = DEBUG/PANIC, debugging extensions
+-----------------------------------------
+
+NAME:  debugprint
+USES:  (none)
+USAGE:  Call criticalsection first.  Load the "debugmessage" vector with the
+        location of the CR-terminated debug string and call this routine.
+        The message will be printed to the console device, saving the entire
+        current process state.  Call uncriticalsection after this call is
+        completed.  Note that this call will PANIC if the console device
+        returns an error.
+
+NAME:  kernelpanic
+USES:  (N/A)
+USAGE:  Freezes the entire system, after printing out potentially useful
+        debugging information.  This includes the current processor state
+        as of the panic call, the address + 2 of the JSR that called, and
+        a stack dump to the console.

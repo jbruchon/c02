@@ -4,4 +4,7 @@
 
 ; If you have a separate file to use, include it here.
 
-!src "test/testterm.s"
+;!src "test/tstpanic.s"
+!src "test/tstdebug.s"
+;!src "test/testterm.s"
+;!src "test/testcon.s"
