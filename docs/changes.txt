@@ -169,4 +169,4 @@ Did some work on adding debugging functionality, including adding new debug
 message printing and kernel panic routines.  Fixed a bug in the VIC-II driver
 that was causing carriage returns to shoot down many lines instead of just one
 line as it should.  Wrote a test initial task that throws a panic and tested
-kernelpanic.
+kernelpanic.  It's very spooky when you use debug the debugger :)
