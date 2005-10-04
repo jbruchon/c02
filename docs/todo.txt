@@ -1,7 +1,9 @@
 C02 Operating System TODO List
 ------------------------------
 
-Some of this might be more of a wish list, really.
+Some of this might be more of a wish list, really.  Don't expect any of it
+to ever get done :)
+
 
 * Terminal types will be needed in the far future; for now, the specifics
   of each "dumb terminal" driver are hard-coded.
@@ -11,9 +13,7 @@ Some of this might be more of a wish list, really.
 
 * Block moves currently increment the vector instead of using indexing.  This
   makes block moves slower, but it works for now, so it's a low priority to
-  change it.
-
-* Finish up VIC-II driver.
+  change it.  Block moves aren't used heavily by drivers anyway.
 
 * Create a 1541/71/81 asynchronous fast-load disk driver.
 
@@ -34,3 +34,18 @@ Some of this might be more of a wish list, really.
   Banking data will become part of a task context, as will ZP and stack
   page data.  This will take advantage of advanced features offered by these
   enhanced 6502 platforms.
+
+* Change drivers to dynamically registered IRQ hooks instead of statically
+  linked hooks.  This will allow dynamic linking of drivers into the C02
+  framework when the linker (and assembly tools) are written.
+
+* When I get around to it, I'd like to support the C64 Direct-to-TV's
+  enhancements over the stock C64.  The extra memory would be nice.
+
+* Memory defragmentation on a memory allocation failure.  This will require
+  the dynamic linker to be finished first, and all moved programs will have
+  to be relinked in the process.
+
+* Swapping complete tasks out to disk, REU, or other non-executable storage.
+  This will require the implementation of a "sleep" system where a process
+  can register a wake-up event and stop being scheduled.

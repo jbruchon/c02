@@ -2,7 +2,8 @@
 ; math.s: Mathematical functions
 ; Copyright (C) 2004, 2005 by Jody Bruchon
 
-; multiply8 provides an 8-bit multiply
+; multiply8 provides an 8-bit multiply with 16-bit result.
+; This should not produce results above $fe01 ($ff * $ff)
 ; *SYSCALL*
 multiply8
 !ifdef CONFIG_6502 {

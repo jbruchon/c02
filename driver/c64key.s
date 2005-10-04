@@ -77,8 +77,6 @@ c64kdec3
         iny                     ; Increment pointer
         bcs c64kdec3            ; Skip back to rotation
 c64kdec4
-        lda c64kcodes,y         ; Load key to queue from table
-        jsr queuekey            ; Queue the key (shifts queue a $00)
         tya                     ; Need to do shift check in A, not Y
         ldx #$00
 c64kshift1
@@ -93,6 +91,19 @@ c64kshift2
         ora c64kflags           ; Set the flag
         sta c64kflags           ; Store the flag
 c64kexit
+        ldx #$00                ; Init counter for shifting
+        lda c64kflags           ; Load key flags
+        and #$01                ; Ignore CTRL and C= flags
+        beq c64kexit1           ; If zero, no shift required
+        ldx #$01
+c64kexit1
+        lda c64kcodes,y         ; Load key to queue from table
+        cpx #$01                ; Shifting required?
+        bne c64kexit2           ; No = queue scan code directly
+        clc
+        adc #$40                ; Shift up to second code table
+c64kexit2
+        jsr queuekey            ; Queue the key (shifts queue a $00)
         ldy temp                ; Reload saved registers
         pla
         rts                     ; Return to scanner routine
@@ -101,6 +112,11 @@ c64kexit
 
 c64kcodes
 
+!08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 0-15
+!08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 16-31
+!08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 32-47
+!08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 48-63
+; These are the results if the SHIFT key is held down
 !08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 0-15
 !08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 16-31
 !08 $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00 ; 32-47

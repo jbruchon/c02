@@ -48,6 +48,13 @@ kbqueuelen      =$0e            ; length in bytes (must be $04 or higher)
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Commodore 64 keyboard driver
 c64kflags       =$05+gzpoffset
+c64kscantbl     =$0d+gzpoffset  ; 8 bytes
+c64knewkeys     =$15+gzpoffset  ; 3 bytes
+c64koldkeys     =$18+gzpoffset  ; 5 bytes
+c64kporta       =$dc00
+c64kportb       =$dc01
+c64kddra        =$dc02
+c64kddrb        =$dc03
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Rictor's 65C02 simulator terminal driver
@@ -87,7 +94,7 @@ debugtmp1       =$d7
 ; Library lock flags
 ; Each byte serves eight Syslib routines with locking functions.
 
-lock1  =$0a+gzpoffset
+lock1           =$1d+gzpoffset
   getcharL      =%00000001
   kbqueueL      =%00000010
 
@@ -107,12 +114,9 @@ zp7             =$ff
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Process information table
 
-pitsize         =$0f
-
 pitpid          =$00
 pitstate        =$01
-pitpages        =$02
-pitimport       =$03
-pitexport       =$05
-pitbank         =$07
-pitname         =$08
+pitimport       =$02
+pitexport       =$04
+pitbank         =$06
+pitsize         =$07

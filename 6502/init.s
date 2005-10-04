@@ -1,10 +1,12 @@
 ; C02 Operating System
-; init.s: Kernel initialization
+; init.s: Kernel initialization (all systems)
 ; Copyright (C) 2004, 2005 by Jody Bruchon
 
 init
         sei                     ; Mask off IRQs so we aren't interrupted
         cld                     ; Just in case, clear decimal mode.
+
+!src "6502/ARCH.S"              ; Architecture-specific initializations
 
 !ifdef CONFIG_6502 {
         lda #$00
@@ -20,10 +22,6 @@ init
 
 !src "DRIVER/DRVINIT.S"         ; Per-driver initialization code
 
-!ifdef CONFIG_ARCH_C64 {
-        lda #$05                ; Make SURE 6510 keeps I/O banked in!
-        sta $01                 ; LORAM+CHAREN=I/O.  CHAREN only=RAM :(
-}
 !ifdef RAM_AT_FF_PAGE {
         lda #<irq               ; Set NMI vector to irq
         sta $fffa               ; nmivec = $fffa-b
