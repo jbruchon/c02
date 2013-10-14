@@ -1,0 +1,18 @@
+To build C02 on a DOS or Windows system with ACME installed
+in the system PATH, simply run build.bat in the C02 folder.
+
+The ACME Cross-Assembler can be downloaded at:
+http://www.esw-heim.tu-clausthal.de/~marco/smorbrod/acme/
+http://sourceforge.net/projects/acme-crossass/
+
+Documentation on how to write up build.cfg for your system
+is available in the "docs" folder.  build.cfg example files are
+available in the "configs" folder.
+
+Sample bootstrapping code to start C02 on a system that is not
+booting directly into a C02 ROM can be found in "boot".
+
+"test" contains code that can be used to test that various
+functions are working properly.
+
+All remaining folders are system code of some form or another.
