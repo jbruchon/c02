@@ -1,9 +1,10 @@
 ; C02 Operating System
 ; char.s: Character I/O functions
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
+; -----------------------------------
 ; getchar will attempt to retrieve a character from the specified input.
-; *SYSCALL*
+
 getchar
 ; lock
         lda lock1               ; Load lock byte
@@ -11,9 +12,9 @@ getchar
         beq getcharLok          ; If zero, lock unset so continue
         jmp resourcelocked      ; Set lock = resource locked
 getcharLok
-        lda #getcharL           ; Load the bit for the getchar lock
-        ora lock1               ; Set getchar lock bit in lock byte
-        sta lock1               ; Store new lock byte
+        lda #getcharL
+        ora lock1               ; Set getchar lock bit
+        sta lock1
 ; endlock
         cpx #$00                ; $00 = console
         beq consoleinput
@@ -25,10 +26,11 @@ getcharexit
         tax                     ; Save A
 ; lock
         lda #255-getcharL       ; Load inverted lock bit mask
-        and lock1               ; Clear lock bit in lock byte
-        sta lock1               ; Store lock byte
+        and lock1               ; Clear lock bit
+        sta lock1
 ; endlock
         txa                     ; retrieve A
+        clc
         rts
 ; consoleget does queue retrieval and pointer update
 consoleget
@@ -36,11 +38,12 @@ consoleget
         ldx kbqueue             ; Load keyboard queue pointer
         bne kbqnotnull          ; Non-zero = get char
         lda #$00                ; Zero = send a null char back
+        clc
         rts
 kbqnotnull
         lda kbqueue+1           ; Load character from queue
-        pha                     ; Temporarily save
-        cpx #$01                ; Are there two or more keys in queue?
+        pha
+        cpx #$01
         beq kbqnocycle          ; <2 = no cycling
         ldx #$01                ; Prepare to move buffer backwards
         ldy #$00
@@ -50,14 +53,15 @@ kbqcycle
         lda kbqueue,x           ; Load char
         sta kbqueue,y           ; Move back 1 space
         cpx kbqueue             ; Check Y against current queue end
-        bne kbqcycle            ; If not done, recurse
+        bne kbqcycle
 kbqnocycle
         dec kbqueue             ; Decrement pointer
         pla                     ; Restore value
         rts
 
+; -----------------------------------
 ; putchar attempts to send a character to the specified output device.
-; *SYSCALL*
+
 putchar
         cpx #$00                ; $00 = console
         beq putchardev0
@@ -70,7 +74,7 @@ putcharworked
         clc
         rts
 
-; *SYSCALL*
+; -----------------------------------
 putstring
         ldy #$00                        ; Counter for message printing
 putstring1
@@ -90,19 +94,22 @@ putstring2
 putstring3
         rts
 
+; -----------------------------------
 ; queuekey adds a byte to the keyboard queue and updates queue pointers
-; *SYSCALL*
+
 queuekey
+        tax                     ; Save the key
 ; lock
         lda lock1               ; Load lock
         and #kbqueueL           ; Check lock
         beq kbqueueLok          ; If zero, continue
         jmp resourcelocked      ; Set lock = resource locked
 kbqueueLok
-        lda #kbqueueL           ; Load lock
-        ora lock1               ; Set lock bit
+        lda lock1               ; Load lock
+        ora #kbqueueL           ; Set lock bit
         sta lock1               ; Store new lock byte
 ; endlock
+        txa
         ldx kbqueue             ; Get current queue pointer
         inx
         cpx #kbqueuelen         ; Check against max length
@@ -110,8 +117,8 @@ kbqueueLok
         sta kbqueue,x           ; Store key
         stx kbqueue             ; Store pointer
 ; lock
-        lda #255-kbqueueL       ; Get lock byte
-        and lock1               ; Clear lock bit in lock byte
+        lda lock1               ; Get lock byte
+        and #255-kbqueueL       ; Clear lock bit in lock byte
         sta lock1               ; Store lock byte
 ; endlock
         clc
@@ -119,3 +126,33 @@ kbqueueLok
 queuekeyfull
         jmp bufferfull          ; Oops!
 
+; -----------------------------------
+; Convert a byte to two ASCII hexadecimal digits
+
+byte2hex
+        lda zp0
+byte2hexhigh
+        lsr                             ; Translate high down to low
+        lsr
+        lsr
+        lsr
+        clc
+        adc #$30                        ; ASCII 0 = $30
+        cmp #$3a                        ; Is it going to be a-f?
+        bmi byte2hexhigh1               ; No = go ahead and send
+        clc
+        adc #$07                        ; Translate up to alphabet for hex
+byte2hexhigh1
+        sta zp1
+        lda zp0
+        and #$0f                        ; Cut high nybble out
+        clc
+        adc #$30                        ; ASCII 0 = $30
+        cmp #$3a                        ; Is it going to be a-f?
+        bmi byte2hexlow1                ; No = go ahead and send
+        clc
+        adc #$07                        ; Translate up to alphabet for hex
+byte2hexlow1
+        sta zp2
+        clc
+        rts

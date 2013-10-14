@@ -1,0 +1,33 @@
+C02 Operating System planning
+-----------------------------
+
+The kernel core handles scheduling tasks, IRQ service dispatching,
+page-level memory and process management.
+
+The various device drivers provide the lowest level API for usage of
+system hardware.  The responsibility of the device drivers is to
+allow use of the underlying hardware in the same manner regardless
+of the platform in use.
+
+Drivers for block devices provide support for reading and writing
+the devices at the fundamental block level, as well as reporting the
+device size in blocks and block count.
+
+File system drivers are used to read block devices on the file level
+instead of the block level.  The FS drivers provide a file-based
+interface between the VFS layer and the block device layer.
+
+The VFS layer is a routing driver that takes all file access requests,
+determines which file system and block device are responsible for
+the path, and dispatches requests appropriately.  For example, if a
+directory /usr is on hard drive 1, /usr/ext is a floppy disk mount, and
+/usr/ext/circle is a loop-mounted image, the VFS would search the mounted
+path index in memory and find that /usr/ext/circle is the root for the
+first loopback device and uses the FS driver "cfat."  The leading path
+for the mount point is stripped from the request, and then the remaining
+path information along with the device numbers are passed to the FS
+driver.  The FS driver will communicate directly with the raw block
+device driver (which may or may not cache recent block accesses) and
+the results of the request will be sent back to the requesting process
+by using carry flag and status number, and if a read is requested, by
+loading the requested block of the file into program memory.

@@ -1,0 +1,48 @@
+C02 modified FAT16 file system
+
+Sector 0 = Boot sector (C128 etc.)
+
+Sector 1 = FS information table
+  $00-$06 = "C02FAT16" signature
+  $07 = Cluster size (256-byte block multiple)
+        $01 = 1 block per cluster, $04 = 4 blocks, etc.
+  $08/$09 = Sector number for FAT start
+  $10/$11 = Size of FAT at time of creation (in clusters)
+  $12/$13 = First cluster number of root directory start
+  $14-$25 = 16-byte disk volume label (null-terminated)
+  $26-$ff = Reserved
+
+Sector 2 = default FAT start
+
+FAT entries are 16 bits (2 bytes) long.
+$0000 = Free space
+$0001-$FFFA = Used space + Pointer to next cluster in file
+$FFFD = Unusable cluster
+$FFFE = Reserved cluster (FAT area, etc.)
+$FFFF = Used space and EOF (End of File)
+FAT entries past the FAT size indicated in the FS info table are
+to be filled with "reserved."
+
+Directory entry structure:
+
+Every file's directory entry consists of a 24-byte name, a 2-byte
+starting cluster, a 4-byte file length, an attribute byte, and a
+reserved byte which should be zero.  Eight file names can be stored
+in every 256-byte block.
+
+When a file system is created, the number of clusters that will be
+available can be determined by the following steps:
+
+1. Subtract two sectors from the total number of sectors involved
+2. Divide this number by the number of sectors per cluster
+3. Strip off any non-integer components of the result
+This is the number of clusters in the file system.
+
+Determining the number of clusters used by the FAT is simple.
+Divide the number of clusters in the file system by 128.  This is the
+number of 256-byte blocks required for the FAT.  Further divide this
+by the cluster multiplier.  Round up to the next highest size if the
+result is not an integer quantity.
+Note that the FAT will be included in itself as reserved clusters.
+Also, the unused area of the FAT must be filled with "reserved"
+entries.

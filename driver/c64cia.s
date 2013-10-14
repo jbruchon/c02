@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; c64cia.s: Commodore 64 CIA handler
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; For now, this is a placeholder that clears IRQ conditions and exits
 

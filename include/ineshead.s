@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; ineshead.s: iNES Header File
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 !08 $4e, $45, $53, $1a          ; "NES" plus character break
 

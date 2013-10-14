@@ -1,7 +1,6 @@
 ; C02 Operating System
 ; mm.s: Memory management core
-; Copyright (C) 2004, 2005 by Jody Bruchon
-
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 malloc
         jsr criticalsection     ; Don't task-switch during malloc

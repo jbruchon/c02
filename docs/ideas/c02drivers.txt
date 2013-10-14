@@ -1,0 +1,28 @@
+C02 driver guts
+
+---
+
+BLOCK DEVICE DRIVERS provide nothing more than raw read/write functions
+and various device information functions such as size of device and
+raw device sector size.  Device-specific functions may appear on a
+per-driver basis.  Devices can be locked when in use.
+
+FILESYSTEM DEVICE DRIVERS provide a file-based interface that provides
+open, close, block read, block write, delete, rename, etc. functions.
+These drivers are intermediaries between the VFS and the individual
+block device drivers.  The VFS provides a block device number, an operation
+type, and a pathname or file handle to the individual filesystem driver.
+The filesystem driver gives the VFS a driver-specific file handle number
+when a file is opened.  When VFS does a mount of a specific FS, the FS
+driver's mount functions are called to allow it to initialize the FS for
+reading.
+
+THE VIRTUAL FILE SYSTEM (VFS)
+VFS maps pathnames to their proper filesystem drivers and hands out handles
+for opened files independent of the one given by the specific FS driver.
+VFS also mounts and unmounts filesystems on the root FS.
+
+BLOCK CACHING SUBSYSTEM
+Eventually, a block cache will be implemented that intercepts all calls to
+a block device driver and provides caching functionality.
+

@@ -1,0 +1,72 @@
+
+                             C02 Operating System
+                             --------------------
+
+Purpose:  Become the standard OS for all 6502 platforms through scalability
+          and ease of use and adaptation.
+
+Game Plan:
+
+The very first thing that must be completed is to design a dynamic linking
+and loading format that will be used universally throughout the entire
+system.  Once that is completed, the next step will be to create a complete
+development package consisting of a preprocessor, assembler, linker, and
+loader.  Upon completion of these tools, the system can begin construction.
+The primary requirements holding back proper development of C02 in the last
+incarnation were these tools.  Once they exist and a system is functional
+enough to stand on its own, the tools will be immediately ported into the
+system and developed on C02 natively.
+
+The C02 kernel's previous incarnation suffered from a basic lack of
+direction, and because of the ad-hoc nature of code generation, the entire
+system became a very messy pile of spaghetti code.  The current incarnation
+will require structure, purpose, and concrete specifications and goals.
+
+CONCRETE GOALS AND MILESTONES
+=============================
+
+>> CORE ASSEMBLER
+   The assembler is the simplest part of the toolchain to create, therefore
+   it is the first component required.  The assembler will be relatively
+   stupid because it will only accept preprocessed input with no formatting.
+   The assembler creates two files: one containing symbol locations, the
+   other containing the actual raw code.
+
+>> PREPROCESSOR
+   The preprocessor is responsible for many things, including merging the
+   separate assembly files of a project into one file for assembly.  It also
+   performs basic syntax checking, strips comments and whitespace, etc.
+   The preprocessor is required to make a human-maintainable project usable
+   in the otherwise fairly unintelligent assembler.
+
+>> PROGRAM LINKER
+   Object and symbol files emitted by the assembler must be converted into
+   the relocatable program file format used by the C02 system and either
+   statically linked with all dependent libraries or set up with all the
+   information needed by a dynamic linker/loader to connect dependent parts
+   at runtime.
+
+>> DYNAMIC LINKER AND LOADER
+   Object code can't run without something to rewrite it and put it into
+   system memory, so the dynamic linker/loader will be necessary to run
+   anything created by the assembler/linker that is not hard-linked for a
+   specific execution location.  Having a platform-specific dynamic linker
+   allows easy creation of a kernel booter that can load the kernel anywhere
+   in memory.  This is particularly helpful with VIC-20s and the like, where
+   memory configurations may vary wildly from one expansion to the next.
+
+>> CORE TASK SCHEDULER
+   The highest priority will be implementation of a task scheduler and the
+   system calls required to manipulate it.
+
+>> MEMORY ALLOCATION
+   The reasons are obvious.
+
+>> IRQ REGISTRATION
+   The ability for drivers to register themselves dynamically for polling
+   offers opportunity to reduce IRQ overhead where drivers no longer need
+   to poll.
+
+>> CHARACTER/BLOCK DEVICE COMMUNICATION
+   Device drivers will register themselves with the system when loaded, and
+   a subsystem that maintains the list of devices will be required.

@@ -1,0 +1,5 @@
+C02 Project Changes
+-------------------
+
+2009-06-20
+Optimized all of the byte-to-hex conversion code a bit.  An AND #$F0 was right before four LSR instructions and a CLC, but LSR+CLC dump the low nybble and carry anyway.  Combined low/high byte printing in kernel panic code.  Added a configuration option for general speed/size tradeoff and another for expensive speed/size tradeoff (inlining, etc).  Symbols that are duplicated due to expensive optimization are prefixed with "EX_" to make them easy to locate.

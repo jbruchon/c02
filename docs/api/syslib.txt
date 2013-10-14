@@ -50,6 +50,31 @@ USAGE:  Load A with the byte to add to the system's keyboard queue.  If the
         call is used primarily by keyboard drivers, but is useful if you
         want to force a key into the keyboard queue for some reason.
 
+NAME:  byte2hex
+USES:  A X ZP[0,1,2]
+USAGE:  Load the byte to decode into ASCII hexadecimal digits into ZP0.
+        The converted high and low characters will be in ZP1 and ZP2,
+        respectively.
+
+CLASS = DEBUG/PANIC, debugging extensions
+-----------------------------------------
+
+NAME:  debugprint
+USES:  (none)
+USAGE:  Call criticalsection first.  Load the "debugmessage" vector with the
+        location of the CR-terminated debug string and call this routine.
+        The message will be printed to the console device, saving the entire
+        current process state.  Call uncriticalsection after this call is
+        completed.  Note that this call will PANIC if the console device
+        returns an error.
+
+NAME:  kernelpanic
+USES:  (N/A)
+USAGE:  Freezes the entire system, after printing out potentially useful
+        debugging information.  This includes the current processor state
+        as of the panic call, the address + 2 of the JSR that called, and
+        a stack dump to the console.
+
 CLASS = CRITICAL, critical section management
 ---------------------------------------------
 
@@ -129,21 +154,35 @@ USAGE:  Set A to the start page of the block, set X to the number of pages
         the current PID, and only if they are equal will the blocks be freed.
         If carry is clear, all is well.
 
-CLASS = DEBUG/PANIC, debugging extensions
------------------------------------------
+CLASS = PROCESS, process management calls
+-----------------------------------
 
-NAME:  debugprint
+NAME:  breakexec
 USES:  (none)
-USAGE:  Call criticalsection first.  Load the "debugmessage" vector with the
-        location of the CR-terminated debug string and call this routine.
-        The message will be printed to the console device, saving the entire
-        current process state.  Call uncriticalsection after this call is
-        completed.  Note that this call will PANIC if the console device
-        returns an error.
+USAGE:  Call this to return control to the operating system by simulating an
+        IRQ.  If you use the BRK instruction instead of calling this, the
+        IRQ code will consider it an unexpected BRK instruction (which tends
+        to indicate a crappy programming bug) and the current process will
+        be immediately terminated.
 
-NAME:  kernelpanic
-USES:  (N/A)
-USAGE:  Freezes the entire system, after printing out potentially useful
-        debugging information.  This includes the current processor state
-        as of the panic call, the address + 2 of the JSR that called, and
-        a stack dump to the console.
+NAME:  createpid
+USES:  
+
+NAME:  getcpid
+USES:  A X
+USAGE:  Calling this will return the PID for the currently running task in
+        A.
+
+NAME:  killpid
+USES:  A X Y
+USAGE:  Calling killpid with the current process ID in A will terminate that
+        process without question.  If the process is not located in the
+        PIT, an error will be returned.
+
+NAME:  killcpid
+USES:  A X Y
+USAGE:  This call will call getcpid before executing killpid.  The result is
+        termination of the currently executing process.  This is useful in
+        two scenarios:  a process wants to terminate, or IRQ code wants to
+        terminate the current process because of a problem.
+

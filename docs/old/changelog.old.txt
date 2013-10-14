@@ -1,33 +1,28 @@
-CHANGELOG
----------
+C02 Change Log for 2004-2005
+----------------------------
 
-11/22/2004  Jody Bruchon (jbruchon@nc.rr.com)
-
+11/22/2004
 Started initial work on kernel code
 
-11/25/2004  Jody Bruchon (jbruchon@nc.rr.com)
-
+11/25/2004
 Completed basic kernel scheduler with C64-specific IRQ handling.  Entire
 scheduler with init routines fits in ~186 bytes! :)
 Now we need device drivers... :(
 
-12/28/2004  Jody Bruchon (jbruchon@nc.rr.com)
-
+12/28/2004
 Scheduler now has an offset cache instead of loops.  Code down to 163 bytes
 total, *89 bytes for the scheduler!*  Cycle count is now 156 cycles per
 context switch (+3 if looping back to task 1).  This count does not change
 with higher quantities of running tasks.
 
-12/30/2004  Jody Bruchon (jbruchon@nc.rr.com)
-
+12/30/2004
 Completed initial rebuild for ACME assembler.  Split scheduler into sub-arch
 folders and now use a file "build.cfg" to define how to construct the source
 for the target.  Used stack instructions instead of zero page stores to save
 two bytes in "irqload" in 6502/sched/irq.s and 65c02/sched/irq.s.  Optimized
 sched.s parts for 65c02 CPU.
 
-01/02/2005  Jody Bruchon (jbruchon@nc.rr.com)
-
+01/02/2005
 Added conditionals around some C64 code I missed in kernel/6502/sched/init.s.
 Added a build option for the Nintendo Entertainment System (NES) to provide a
 platform for portability testing.  No NES-specific code yet.  Moved the
@@ -37,31 +32,27 @@ driver will be for the Commodore 64 keyboard, and the second for the VIC-II.
 Support for the VIC-20's original VIC-I chip is planned eventually.  I have
 yet to decide how I will standardize the console functions cross-platform.
 
-02/25/2005  Jody Bruchon (jbruchon@nc.rr.com)
-
+02/25/2005
 Cleaned up the CIA portion of the IRQ hooks; there is not a stub of code in
 the IRQ hooks file anymore for C64 CIA chips.  Cleaned a syntax error from
 c64key.s driver code, but still haven't managed to finish the code itself.
 I am considering collapsing the code down from the kernel folder.
 
-04/18/2005  Jody Bruchon (jbruchon@nc.rr.com)
-
+04/18/2005
 Fixed endianness error that breaks IRQ/RES/NMI vectors if ROM building is selected.  Reworked and partially commented the main build configuration to
 be clearer and have more choices for generic arches.  Began using Daryl
 Rictor's 65C02 Simulator as the new development platform due to its simplicity and flexibility.  Fixed problem with nmi variable not being set which caused
 ROM building to choke (option added to make NMI just RTI [without adding
 one byte of code!], which in some cases may be desirable).
 
-04/26/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+04/26/2005
 Made the simterm console driver automatically map CR to CR+LF.  This makes
 the ENTER key work properly without further modification.  Also cleaned up
 the documentation a *tiny* bit.  Began working on SYSLIB.S, which will be
 the core API code.  Primary focus right now is on getting some form of a
 common console interface API in place to allow interactivity.
 
-04/27/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+04/27/2005
 Cleaned up build configurations and moved most of it to the file
 INCLUDE/SETBUILD.S for known arches.  Some settings are wrong for now, but
 the Rictor 65C02 simulator option works properly at least.  Did MAJOR work
@@ -73,8 +64,7 @@ termtest.s program running on a kernel built for the Ric65C02 simulator
 successfully echoes the keyboard input to the terminal output using device
 numbers assigned to "system console."
 
-04/28/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+04/28/2005
 Did some framework for adding proper NES drivers.  Because the NES uses NMI,
 a critical section entry/exit function had to be installed in Syslib.  This
 will include driver-dependent IRQ/NMI enable/disable codes.  The console
@@ -82,8 +72,7 @@ driver for NES will need a small buffer and will need to dump that buffer
 on a VBlank.  Also fixed case in source files so case-sensitive OSes (Linux)
 should be able to find the files properly.
 
-05/06/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+05/06/2005
 An untested Commodore 64 keyboard driver has been written today, and a null
 VIC-II console driver is now in place.  Debugger testing of the keyboard
 driver may begin soon.  Also combined some scattered variables in various
@@ -94,8 +83,7 @@ about 200 bytes in size.  Still no memory management, disk access, or program
 loader code yet, but when the basic console drivers are firmly in place, that
 development can begin.
 
-06/07/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+06/07/2005
 I am updating the documentation and beginning a new API document that will
 outline the function calls in Syslib.  Every documented call will end up
 with a jump table offset, but for now merely documenting them at all is
@@ -106,8 +94,7 @@ flag (criticalflag) is set in systemflags.  The worst part is that some
 65C02 optimization is rendered pointless by this, but that's a small price
 to pay for critical section protection.
 
-06/09/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+06/09/2005
 Added an 8-bit multiply routine to Syslib and made it re-entrant by adding
 eight user zero-page locations to a context.  Added ZP storage to context
 switching system.  Re-verified building for C64 and Ric65C02, and tested
@@ -118,8 +105,7 @@ the getchar mutex, and removed unnecessary eor #$ff from mutex unset routines
 in favor of using "lda #255-mutex" instead of "lda #mutex / eor #$ff" to
 save a few bytes and cycles.
 
-06/11/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+06/11/2005
 Finally debugged and inserted block move up/down routines in Syslib.  They
 are generic block move routines that are similar to MVN/MVP on a 65816 and
 MVN/MVP will most likely be the first optimization I make for 65816-based
@@ -132,8 +118,7 @@ of contiguous memory locations with the fill byte.  It appears to be very
 fast; I may implement page move routines for speed optimization in such
 things as the VIC-II driver.
 
-06/13/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+06/13/2005
 Optimized multiply8 even further by eliminating redundancy and removing a bug
 that caused interrupts to be locked/unlocked despite the routine now being
 re-entrant.  Saved about four bytes and reversed ZP usage so the result of
@@ -142,17 +127,14 @@ aid in some indirect vector calculations.  And during the optimization, I
 tested it outside of Syslib and it failed.  The loop counter was set to 7 and
 needed to be 8.  Oops.  I get the stupid award for not testing it properly.
 
-06/28/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+06/28/2005
 Cleaned up documentation, added items to TODO list.
 
-08/14/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+08/14/2005
 Found an optimization for block moves but don't want to break the code right
 now.  Added item to the TODO list.
 
-08/15/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+08/15/2005
 Fixed a nasty bug that allowed IRQ hooks to clobber stuff inside a critical
 section.  This made critical section IRQs slower but allowed for the
 restoration of a universal CMOS optimization.  Also worked on the VIC-II
@@ -161,12 +143,86 @@ It currently features proper screen scrolling and responds to $0d (CR), but
 other control characters are not yet implemented.  It should be enough for
 basic functionality, though.
 
-08/30/2005   Jody Bruchon (jbruchon@nc.rr.com)
-
+08/30/2005
 Broke up Syslib into multiple files.  Created memory allocation/deallocation
 routines and a memory map standard.  It needs process IDs which I have not tackled yet, but a dummy "getcpid" has been implemented for testing purposes.
 Did some work on adding debugging functionality, including adding new debug
 message printing and kernel panic routines.  Fixed a bug in the VIC-II driver
 that was causing carriage returns to shoot down many lines instead of just one
 line as it should.  Wrote a test initial task that throws a panic and tested
-kernelpanic.  It's very spooky when you use debug the debugger :)
+kernelpanic.  It's very spooky when you debug the debugger :)
+
+10/02/2005
+Broke up initialization so that code specific to a certain platform is held
+in its own directory under the appropriate processor type.  Moved Syslib to
+its own directory under C02 instead of being under a processor-specific
+folder.  Syslib functions should not be significantly different by CPU.  At
+most, some CPU-specific optimizations may be made, but should the differences
+be huge enough to warrant separate files for the same routine on different
+CPUs, sub-folders for each CPU with those files can be made later.
+
+10/05/2005
+With some help from the C=Hacking #6 article, I have adapted the 3-key
+rollover keyboard scanning code to fit C02.  The code is not complete and is
+totally untested, but it's a start.  I need to fill in scancode translations
+to ASCII for the code to work anyway.  Minor changes including a change in
+the arrangement of the process information table format and a fix for a bug
+where two system variables were defined at the same location.  This bug would
+have caused the Syslib locking flags and the C64 keyboard driver to kill each
+others' data.
+
+10/10/2005
+Wrote out the getcpid routine and set down plans for killing calls.  Built
+the routine breakexec to provide a way for programs to return control to the
+system; the motivation was that an error in a test program caused it to end
+up with a PC of $0000 and executing BRK instructions repeatedly.  Such BRK
+races will now be trapped immediately and result in the killing of the
+offending process immediately.  Fixed an ugly bug where ZP context data was
+clobbering the offset cache value in X, but the clobbered value was used
+instead of the correct one.  Fixed a potential bug where the function of
+the critical flag was reversed, resulting in critical section locking by
+default instead of requiring the option to be set by a program.  Added debug
+messages to error message calls, and moved all actual messages to a separate
+file for easier maintenance.  A few more test programs were created to aid
+in debugging the new system.
+
+10/11/2005
+Wrote out a routine to allocate a new PID to a process, and began work on a
+routine to activate a newly allocated PID, turning it into a task.
+
+04/08/2006
+Many small changes have been made without updates to the chnage log.  The
+most important thing to document is that the Syslib routines for process
+management have not been completed.  Work has been done on activating a PID
+as a task, but killing processes has yet to be implemented.  The structure
+of storage for Syslib was changed to generalize system libraries under a
+unified folder "lib" and syslib is now in "lib/sys" instead of "syslib."
+Preliminary work has begun on a library for data structure allocation and
+management, known as "lib/ds" by directory or "dslib" otherwise.  This
+library is a major precursor to speeding up development, because most of the
+programs required in any operating system require variable management of some
+form or another.  By building this component into C02 from this stage, a
+command-line interpreter or a machine language monitor will be much easier
+to implement when the file access API is completed.  Most of the past six
+months' work on C02 have been "on paper" but not actually implemented.  The
+major obstacle that has impeded work is the toolchain's non-existence.  C02
+needs a self-hosting toolchain that generates dynamically linkable program
+files.  Once that toolchain exists, the current work can be ported over to
+the new toolchain and modularization of the system can begin.  Once C02 can
+become modular, the dynamic loader can be ported to each specific system's
+boot requirements and the entire OS can be dynamically linked together at
+startup with only the required drivers in memory, and drivers can be
+reconfigured at load-time instead of having to compile separate drivers for
+every difference in a system's memory map.
+Fixed a bug where the carry bit was not cleared after successful consoleget
+call.  Fixed a variable problem where the keyboard queue clobbered the lock
+flags.  There is still a bug where keys are not being accepted.
+
+04/10/2006
+The A register was clobbered when queuekey was called because of a bad flag
+read/set implementation.  TAX/TXA ops around the locking code fixed the
+problem.  Added byte-to-hex conversion routine.
+
+12/22/2007
+Cleaned up comments in some code.  A minor change was made to initialization
+code that removes a redundant line in the CMOS 6502 optimization section.

@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; debug.s: Debugging helper stuff
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; This will print a string terminated with a carriage return
 ; ($0d) to the console device.

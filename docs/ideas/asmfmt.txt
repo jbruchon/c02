@@ -1,0 +1,27 @@
+C02 Assembly File Format
+========================
+
+
+OUTPUT FORMAT OPTIONS
+---------------------
+
+link=[type]
+
+  Sets the default output format of the assembled code.  Valid values for
+  [type] include:
+
+  * dynamic - Full dynamic-link, relocatable code
+  * static - Relocatable code with all dependent libraries pre-linked
+             as part of the output file.
+  * locked - All program code is pre-linked and pre-located to a specified
+             fixed address in memory.  This is only useful for code that
+             can't be loaded anywhere else and/or does not have a dynamic
+             linker available at load time.  (A dynamic linker that will
+             load the OS components to boot it is an example of such code.)
+
+start=[address]
+
+  Only valid for "link=locked" set.  This determines the starting address
+  of the code output by the toolchain.
+
+

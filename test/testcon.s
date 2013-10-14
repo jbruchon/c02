@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; testcon.s: Initial task to test console functionality
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; This code snippet throws out all possible characters $20-$7f
 ; to the console without using keyboard input.  A delay loop

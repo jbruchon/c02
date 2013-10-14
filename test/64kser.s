@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; 64kser.s: Code that tries to use KERNAL serial routines
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; If this works, I'll write a C64 serial driver later on.
 

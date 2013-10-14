@@ -228,7 +228,7 @@ Advanced Options
 ----------------
 
 These options are seldom used but are provided for those who REALLY
-know what they are doing.  Use caution with these!
+know what they are doing.  Use caution!
 
 CONFIG_ADV_NO_CRITICAL=1
 Critical section support disable (also removes support code from IRQ)
@@ -244,3 +244,8 @@ Remove Syslib from build entirely.  Setting CONFIG_ADV_NO_CRITICAL
 above will remove task switch disabling functions if not needed outside
 of Syslib.  Many drivers require some of the functions in Syslib to operate!
 
+CONFIG_ADV_NO_BRK_KILL=1
+Prevent BRK checking in the IRQ code.  If you do this, IRQ code will be a
+few cycles quicker, but will not check to make sure a process has not done
+something stupid like RTS without a corresponding JSR and ended up in a
+series of BRK instructions.

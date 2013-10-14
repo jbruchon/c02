@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; panic.s: Kernel panic code
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; kernelpanic will halt the system entirely and should only be called
 ; in the event of a failure that should not happen but did anyway.
@@ -131,12 +131,42 @@ kernelpanicloop
         clc
         bcc kernelpanicloop             ; Loop forever
 
+kernelpaniclow
+        and #$0f                        ; Cut high nybble out
+; Inline all the code for expensive optimizations
+!ifdef CONFIG_EXPENSIVE {
+        cmp #$0a                        ; Is it going to be a-f?
+        bmi EX_kernelpanichigh1         ; No = add a different number...
+	clc
+        adc #$37                        ; ASCII A = $37 + $0A
+	jmp consoleput
+EX_kernelpanichigh1
+	clc
+	adc #$30			; ASCII 0 = $30
+        jmp consoleput
+} else {
+	jmp kernelpanichigh0		; Nybble is normalized!
+}
+
 kernelpanichigh
-        and #$f0                        ; Cut low nybble out
         lsr                             ; Translate high down to low
         lsr
         lsr
-        lsr
+        lsr				; Nybble is normalized!
+
+kernelpanichigh0
+!ifdef CONFIG_SPEED {
+        cmp #$0a                        ; Is it going to be a-f?
+        bmi kernelpanichigh1            ; No = add a different number...
+	clc
+        adc #$37                        ; ASCII A = $37 + $0A
+	jmp consoleput
+kernelpanichigh1
+	clc
+	adc #$30			; ASCII 0 = $30
+        jmp consoleput
+
+} else {
         clc
         adc #$30                        ; ASCII 0 = $30
         cmp #$3a                        ; Is it going to be a-f?
@@ -144,18 +174,5 @@ kernelpanichigh
         clc
         adc #$07                        ; Translate up to alphabet for hex
 kernelpanichigh1
-        jsr consoleput                  ; Send out nybble hex value
-        rts
-
-kernelpaniclow
-        and #$0f                        ; Cut high nybble out
-        clc
-        adc #$30                        ; ASCII 0 = $30
-        cmp #$3a                        ; Is it going to be a-f?
-        bmi kernelpaniclow1             ; No = go ahead and send
-        clc
-        adc #$07                        ; Translate up to alphabet for hex
-kernelpaniclow1
-        jsr consoleput                  ; Send out nybble hex value
-        rts
-
+        jmp consoleput
+}

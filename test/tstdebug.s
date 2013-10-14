@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; tstdebug.s: Initial task that puts out a debugging message.
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; Nothing but code to illustrate a debugging message.
 

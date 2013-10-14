@@ -1,0 +1,76 @@
+Organization of DS library internals
+
+One table takes care of marking the owner of memory locations (malloc)
+One chains together the pages (0=unused, 1=terminate chain)
+One lists the starting page of each PID's DS chain
+
+Tables are zeroed on startup.
+
+DS entry format:
+
+$00-$01 = 16-bit UID of item
+$02-$03 = 16-bit length of item
+$04-... = Data
+After   = $00 x 2 if no more UIDs, otherwise UID of next item.
+
+DS per-process init:
+
+* Calling PID is acquired and starting page list is scanned for it
+* If PID found, error returned.
+* No PID found, allocate 1 page and mark it as starting page.
+
+DS per-process destroy:
+
+* Calling PID acquired and checked against start page list
+* If not found, error returned.
+* If found, record starting page number and destroy entry.
+* Deallocate current page.
+* Read current page's chain entry, then zero it.
+* If chain entry is 1, done.
+* Otherwise, make chain entry current page and go back to deallocate.
+
+DS init a new UID:
+
+* Find starting page for current PID and record.
+* Set counter to $00.
+* Read 2 bytes (UID value)
+* If current UID is zero, the UID is new.
+* If UID value does not match desired UID, seek to next UID and return to
+  "Read 2 bytes"
+* Allocate enough memory to hold the length of the UID slot.
+* Put the new UID in the current UID slot.
+* Set the length of the UID.
+* Return success.
+
+DS move data to current UID:
+
+* Find starting page for current PID and record.
+* Set counter to $00.
+* Scan UID list for desired UID.
+* If UID not found, return error.
+* If found, record location of length pointer.
+* If PID is the system, ignore bounds check.
+* Check length of UID against length+offset of data injection.
+* If overflow will occur, return error.
+* Do a chained block move of data from the program to the UID data area.
+* Return success.
+
+DS copy data from UID:
+
+* Find PID stuff.
+* Find UID.
+* If PID is the system, ignore bounds check.
+* Check length of UID against program mem size.
+* If program will write out of bounds, return error.
+* Otherwise, do a reverse chained block move from the UID to program memory.
+* Return success.
+
+DS destroy UID and garbage collect:
+
+* Find PID/UID stuff.
+* Verify UID exists, if not, return error.
+* Do a chained block move of each UID after destroyed one until done.
+* Calculate number of pages to deallocate.
+* Follow chain to terminal end, then shrink chain.
+* Return success.
+

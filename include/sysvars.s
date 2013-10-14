@@ -1,10 +1,11 @@
 ; C02 Operating System
 ; sysvars.s: Global kernel/syslib variables
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; If the system has a 6510 CPU, push all globals forward by 2
 ; so non-6510 systems don't waste ZP space but 6510 systems don't
 ; misbehave either.  What an annoyance, eh?
+
 
 !set gzpoffset=$00
 !ifdef CPU_6510 !set gzpoffset=$02
@@ -32,18 +33,15 @@ taskspi =$ff
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Basic kernel function storage
-task           =$00+gzpoffset   ; Kernel current task number storage
-temp           =$01+gzpoffset   ; Temporary kernel storage
-tasks          =$02+gzpoffset   ; Total running tasks quantity storage
-offset         =$03+gzpoffset   ; Offset cache storage
-systemflags    =$04+gzpoffset   ; System core flags register
+task            =$00+gzpoffset  ; Kernel current task number storage
+temp            =$01+gzpoffset  ; Temporary kernel storage (non-reentrant)
+tasks           =$02+gzpoffset  ; Total running tasks quantity storage
+offset          =$03+gzpoffset  ; Offset cache storage
+systemflags     =$04+gzpoffset  ; System core flags register
 ; systemflags flag definitions
-criticalflag   =%00000001       ; Critical Section (scheduler disable) flag
-
-;;;;;;;;;;;;;;;;;;;;;;;
-; Keystroke input queue constants
-kbqueue         =$0300
-kbqueuelen      =$0e            ; length in bytes (must be $04 or higher)
+criticalflag    =%00000001      ; Critical Section (scheduler disable) flag
+breakokflag     =%00000010      ; BRK instruction intentional flag
+createpidflag   =%00000100      ; Unused PID waiting to be activated flag
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Commodore 64 keyboard driver
@@ -51,6 +49,9 @@ c64kflags       =$05+gzpoffset
 c64kscantbl     =$0d+gzpoffset  ; 8 bytes
 c64knewkeys     =$15+gzpoffset  ; 3 bytes
 c64koldkeys     =$18+gzpoffset  ; 5 bytes
+c64ktemp        =$1d+gzpoffset
+c64ktemp2       =$1e+gzpoffset
+c64kignore      =$1f+gzpoffset
 c64kporta       =$dc00
 c64kportb       =$dc01
 c64kddra        =$dc02
@@ -94,9 +95,31 @@ debugtmp1       =$d7
 ; Library lock flags
 ; Each byte serves eight Syslib routines with locking functions.
 
-lock1           =$1d+gzpoffset
+lock1           =$20+gzpoffset
   getcharL      =%00000001
   kbqueueL      =%00000010
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Machine Language Monitor
+
+mlmbufptr       =$21+gzpoffset
+mlmbuffer       =$22+gzpoffset
+mlmbuflen       =$0a
+mlmpromptchar   ="."
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; PID working area
+pidtemp         =$2d+gzpoffset
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Keystroke input queue constants
+kbqueue         =$2e+gzpoffset
+kbqueuelen      =$0e            ; length in bytes (must be $04 or higher)
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; DS library ZP storage
+dspat           =$3d+gzpoffset
+dsmspt          =$3e+gzpoffset
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; User ZP locations
@@ -114,9 +137,12 @@ zp7             =$ff
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Process information table
 
+pitentrysize    =$08
+
 pitpid          =$00
 pitstate        =$01
 pitimport       =$02
 pitexport       =$04
 pitbank         =$06
 pitsize         =$07
+

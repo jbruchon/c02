@@ -1,0 +1,23 @@
+C02 Command Interpreter
+
+
+Allocate memory for buffer
+Store memory block address
+Display a prompt symbol
+Read character from console
+Store character in buffer
+Increment buffer pointer
+Is character a CR? No = go back to read character
+Yes = process command
+Initialize buffer search pointer to zero
+Init number of args to zero
+Check current character
+Is character whitespace? Yes = go to mark
+No = is character a CR? Yes = go to end of command handling
+No = increment buffer search pointer
+Return to check current character
+MARK
+Increment arg counter
+Read current location in arg offset list
+Store current buffer pointer in offset list
+Is character a CR?

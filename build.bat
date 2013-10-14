@@ -1,4 +1,3 @@
 @echo off
-acme -v3 MAIN.S > BUILD.LOG
-TYPE BUILD.LOG | MORE
-pause
+acme -v3 main.s > build.log
+type build.log

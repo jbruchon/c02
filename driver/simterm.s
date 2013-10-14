@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; simterm.s: Daryl Rictor's 65C02 Simulator terminal driver
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; simtermirqhook is the IRQ hook point for this driver.
 

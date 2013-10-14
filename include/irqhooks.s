@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; irqhooks.s: Driver IRQ hook inclusion
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 !ifdef CONFIG_INPUT_C64_KEY {
         jsr c64keyirqhook       ; C64 keyboard polling

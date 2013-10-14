@@ -1,0 +1,13 @@
+C02 Development Roadmap
+-----------------------
+
+* Decide on an ABI
+* Create an object file format
+* Write a compiler in BASIC for a C-ish language, and develop the system in this language
+* Write a toolchain around this compiler, also in BASIC
+* Rewrite the kernel core using this compiler
+* Write a program loader for the object format and incorporate it into the kernel
+* Write a special version of the loader that can boot the system for each applicable architecture
+* Rewrite the compiler using itself
+* Bootstrap the new compiler
+* Write a complete toolchain around the compiler

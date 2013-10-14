@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; tstpanic.s: Initial task that simply throws a PANIC
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; Nothing but code to illustrate a kernel panic.
 

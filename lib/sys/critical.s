@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; critical.s: Critical section handlers
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; (un)criticalsection enables/disables task switching for protection of
 ; a program's critical section.

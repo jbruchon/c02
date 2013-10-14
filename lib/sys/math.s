@@ -1,6 +1,6 @@
 ; C02 Operating System
 ; math.s: Mathematical functions
-; Copyright (C) 2004, 2005 by Jody Bruchon
+; Copyright (C) 2004-2008 by Jody Bruchon
 
 ; multiply8 provides an 8-bit multiply with 16-bit result.
 ; This should not produce results above $fe01 ($ff * $ff)

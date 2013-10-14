@@ -1,0 +1,33 @@
+C02ROMFS format
+
+* FIT contains all file information (start offset, size, name)
+* FSBOT is a list of all block offsets from position 0 (C in magic)
+* Length of FSBOT and FIT can be calculated from # files in image
+* Compressed data block length can be calculated from FSBOT pointers
+* 
+
+"CRFS" magic (dword) ->
+  File Information Table [FIT] ->
+    Number of files in FS image (byte)
+    File Starting Block Offset Table [FSBOT] ->
+      File 0 c-data block 0 starting offset (word)
+      File 1 c-data block 0 starting offset (word)
+      ...
+      File N c-data block 0 starting offset (word)
+      Offset of last byte of last block of File N c-data (word)
+    File 0 directory entry ->
+      File 0 size in bytes (word)
+      File 0 name (8 bytes, unused bytes=$00)
+    File 1 directory entry ->
+      File 1 size in bytes (word)
+    ...
+      File N offset in image (word)
+  Compressed file 0 data ->
+    File 0 page 0 compressed length (byte)
+    File 0 page 0 compressed data
+    File 0 page 1 compressed length (byte)
+    ...
+    File 0 page N compressed data
+  ...
+  Compressed file N data
+(End of File)
