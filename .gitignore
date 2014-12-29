@@ -1,0 +1,34 @@
+#
+# Build ignores
+#
+.*
+*.o
+
+#
+# Never ignore these
+#
+!.gitignore
+
+#
+# Normal output and testing dirs
+#
+/foo
+/main.o
+/build.log
+/ksyms.txt
+
+#
+# Backups / patches
+#
+*~
+*.orig
+*.rej
+/*.patch
+
+#
+# debugging stuff
+#
+core
+.gdb_history
+.gdbinit
+
