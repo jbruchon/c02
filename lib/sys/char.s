@@ -69,7 +69,6 @@ putchar
 
 putchardev0
         jsr consoleput
-        jmp putcharworked
 putcharworked
         clc
         rts
@@ -85,12 +84,11 @@ putstring1
         bcc putstring2                  ; If carry clear, all is well
         rts                             ; If carry set, pass error on
 putstring2
-        lda #$00                        ; Load a null into A for compare
-        cmp zp3                         ; Check against character
+        lda zp3                         ; Load a null into A for compare
         beq putstring3                  ; If equal, finish up
         ldy zp2                         ; Restore counter value
         iny                             ; Increment counter
-        jmp putstring1                  ; Do it again until done
+        bne putstring1                  ; Do it again until done
 putstring3
         rts
 
